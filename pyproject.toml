@@ -1,0 +1,53 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "Font-Awesome-Flask"
+authors = [{name = "Steven van de Graaf", email = "steven@vandegraaf.xyz"}]
+readme = "README.md"
+license = {file = "LICENSE"}
+keywords = ["flask", "extension", "font awesome"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Web Environment",
+    "Framework :: Flask",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+
+]
+requires-python = "~=3.7"
+dependencies = ["flask"]
+dynamic = ["version", "description"]
+
+[project.optional-dependencies]
+dev = [
+    "autoflake",
+    "black",
+    "flake8",
+    "isort",
+    "mypy",
+    "pre-commit",
+    "pyupgrade"
+]
+
+[project.urls]
+Home = "https://github.com/sgraaf/font-awesome-flask"
+Issues = "https://github.com/sgraaf/font-awesome-flask/issues"
+"Source code" = "https://github.com/sgraaf/font-awesome-flask"
+
+[tool.flit.module]
+name = "flask_font_awesome"
+
+[tool.isort]
+profile = "black"

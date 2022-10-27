@@ -1,0 +1,12 @@
+{% macro render_icon(name, stack_size=None, inverse=False, size=None, fixed_with=False, rotation=None, animation=None, border=False, pull=None, swap_opacity=False, aria_hidden=True, style=None) %}
+<i class="{{ name }}{% if stack_size is not none %} fa-stack-{{ stack_size }}{% endif %}{% if inverse %} fa-inverse{% endif %}{% if size is not none %} fa-{{ size }}{% endif %}{% if fixed_with %} fa-fw{% endif %}{% if rotation is not none %} fa-{{ rotation }}{% endif %}{% if animation is not none %} fa-{{ animation }}{% endif %}{% if border %} fa-border{% endif %}{% if pull is not none %} fa-{{ pull }}{% endif %}{% if swap_opacity %} fa-swap-opacity{% endif %}"{% if style is not none %} style="{{ style }}"{% endif %}{% if aria_hidden %} aria-hidden="true"{% endif %}></i>
+{% endmacro %}
+
+{% macro render_stacked_icons(name_1, name_2, stack_size_1='2x', stack_size_2='1x', inverse=False, size=None, aria_hidden=True, style=None, style_1=None, style_2=None) %}
+<span class="fa-stack{% if size is not none %} fa-{{ size }}{% endif %}"{% if style is not none %} style="{{ style }}"{% endif %}{% if aria_hidden %} aria-hidden="true"{% endif %}>
+    {{ render_icon(name_1, stack_size_1, inverse if stack_size_1 == '1x' else False, aria_hidden=False, style=style_1) }}
+    {{ render_icon(name_2, stack_size_2, inverse if stack_size_2 == '1x' else False, aria_hidden=False, style=style_2) }}
+    <!-- <i class="{{ name_1 }} fa-stack-2x"{% if style_1 is not none %} style="{{ style_1 }}"{% endif %}></i> -->
+    <!-- <i class="{{ name_2 }} fa-stack-1x{% if inverse %} fa-inverse{% endif %}"{% if style_2 is not none %} style="{{ style_2 }}"{% endif %}></i> -->
+</span>
+{% endmacro %}
