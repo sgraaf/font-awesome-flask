@@ -1,12 +1,12 @@
 # Font-Awesome-Flask
 
-[![PyPI](https://img.shields.io/pypi/v/font-awesome-flask)](https://img.shields.io/pypi/v/font-awesome-flask)
-[![Supported Python Versions](https://img.shields.io/pypi/pyversions/font-awesome-flask)](https://pypi.org/project/font-awesome-flask/)
+[![PyPI](https://img.shields.io/pypi/v/Font-Awesome-Flask)](https://img.shields.io/pypi/v/Font-Awesome-Flask)
+[![Supported Python Versions](https://img.shields.io/pypi/pyversions/Font-Awesome-Flask)](https://pypi.org/project/Font-Awesome-Flask/)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/sgraaf/font-awesome-flask/main.svg)](https://results.pre-commit.ci/latest/github/sgraaf/font-awesome-flask/main)
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
-[![PyPI - License](https://img.shields.io/pypi/l/font-awesome-flask)](https://img.shields.io/pypi/l/font-awesome-flask)
+[![PyPI - License](https://img.shields.io/pypi/l/Font-Awesome-Flask)](https://img.shields.io/pypi/l/Font-Awesome-Flask)
 
 Font-Awesome-Flask is an extension for [Flask](https://flask.palletsprojects.com/en/latest/) that adds support for [Font Awesome](https://fontawesome.com/) to your web application. It adds methods to load Font Awesome's resources (both `Web Fonts + CSS` and `SVG + JS` are supported) and render icons.
 
@@ -14,10 +14,10 @@ Font-Awesome-Flask is an extension for [Flask](https://flask.palletsprojects.com
 
 ### From PyPI
 
-Font-Awesome-Flask is available on [PyPI](https://pypi.org/project/font-awesome-flask/). Install with `pip` or your package manager of choice:
+Font-Awesome-Flask is available on [PyPI](https://pypi.org/project/Font-Awesome-Flask/). Install with `pip` or your package manager of choice:
 
 ```bash
-python3 -m pip install --upgrade font-awesome-flask
+python3 -m pip install --upgrade Font-Awesome-Flask
 ```
 
 ### From source
