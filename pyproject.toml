@@ -40,6 +40,9 @@ dev = [
     "pre-commit",
     "pyupgrade"
 ]
+docs = [
+    "sphinx",
+]
 
 [project.urls]
 Home = "https://github.com/sgraaf/font-awesome-flask"
