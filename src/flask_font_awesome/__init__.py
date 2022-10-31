@@ -42,7 +42,7 @@ class FontAwesome:
         "brands": "fa-brands-400",
     }
 
-    def __init__(self, app: Flask | None = None) -> None:
+    def __init__(self, app: Optional[Flask] = None) -> None:
         if app is not None:
             self.init_app(app)
 

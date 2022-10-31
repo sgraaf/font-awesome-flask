@@ -41,7 +41,10 @@ dev = [
     "pyupgrade"
 ]
 docs = [
+    "furo",
+    "myst-parser",
     "sphinx",
+    "sphinx-copybutton",
 ]
 
 [project.urls]
