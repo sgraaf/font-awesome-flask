@@ -1,24 +1,35 @@
 ```{include} ../README.md
-
+:start-after: <!-- start docs-include-index -->
+:end-before: <!-- end docs-include-index -->
 ```
+
+## User's Guide
 
 ```{toctree}
 ---
-hidden:
-maxdepth: 1
+maxdepth: 2
+---
+
+installation
+usage
+```
+
+## API Reference
+
+```{toctree}
+---
+maxdepth: 4
 ---
 
 api
-Changelog <https://github.com/sgraaf/font-awesome-flask/releases>
 ```
 
-## Basics
+## Changelog
 
 ```{toctree}
 ---
-hidden:
-maxdepth: 1
+maxdepth: 2
 ---
 
-usage
+changelog
 ```

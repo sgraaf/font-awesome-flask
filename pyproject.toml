@@ -45,6 +45,7 @@ docs = [
     "myst-parser",
     "sphinx",
     "sphinx-copybutton",
+    "sphinxext-opengraph"
 ]
 
 [project.urls]

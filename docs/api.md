@@ -3,7 +3,7 @@
 ## `flask_font_awesome` Package
 
 ```{eval-rst}
-.. automodule:: flask_font_awesome
+.. module:: flask_font_awesome
+.. autoclass:: FontAwesome
    :members:
-   :undoc_members:
 ```

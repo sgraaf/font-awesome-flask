@@ -18,14 +18,24 @@ release = flask_font_awesome.__version__
 
 extensions = [
     "myst_parser",
-    "sphinx_copybutton",
     "sphinx.ext.autodoc",
+    "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
+    "sphinx_copybutton",
+    "sphinxext.opengraph",
 ]
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
+intersphinx_mapping = {
+    "flask": ("https://flask.palletsprojects.com/en/latest/", None),
+    "python": ("https://docs.python.org/3", None),
+}
+
+# move type hints into the description block, instead of the signature
+autodoc_typehints = "description"
+autodoc_typehints_description_target = "documented"
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
