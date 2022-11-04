@@ -41,6 +41,14 @@ flit install
 
 ## Example
 
+### Configuration
+
+Font-Awesome-Flask can be configured via the [Flask configuration API](https://flask.palletsprojects.com/en/latest/config/), using the `config` attribute of the `Flask` object. These are the available configuration values along with their description:
+
+| Configuration value        | Default | Description                                                        |
+| -------------------------- | ------- | ------------------------------------------------------------------ |
+| `FONT_AWESOME_SERVE_LOCAL` | `False` | Whether to serve Font Awesome's resources locally or from the CDN. |
+
 ### Initialization
 
 <!-- start docs-include-initialization -->
@@ -55,7 +63,7 @@ app = Flask(__name__)
 font_awesome = FontAwesome(app)
 ```
 
-... or using the [Application Factory](https://flask.palletsprojects.com/en/2.1.x/patterns/appfactories/) pattern:
+... or using the [Application Factory](https://flask.palletsprojects.com/en/latest/patterns/appfactories/) pattern:
 
 ```python
 from flask import Flask

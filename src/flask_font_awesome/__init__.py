@@ -174,7 +174,7 @@ class FontAwesome:
         use_min: bool = use_min,
         use_css: bool = use_css,
     ) -> Markup:
-        """Load Font Awesome `WebFonts + CSS <https://fontawesome.com/docs/web/setup/host-yourself/webfonts>`_ / `SVG + JS <https://fontawesome.com/docs/web/setup/host-yourself/svg-js>`_ resources for the given version. Defaults to `SVG + JS`.
+        """Load Font Awesome's `WebFonts + CSS <https://fontawesome.com/docs/web/setup/host-yourself/webfonts>`_ / `SVG + JS <https://fontawesome.com/docs/web/setup/host-yourself/svg-js>`_ resources for the given version. Defaults to `SVG + JS`.
 
         Some examples:
             >>> font_awesome.load()
@@ -212,7 +212,7 @@ class FontAwesome:
         core_sri: str = css_sri_map[core_style],
         use_min: bool = use_min,
     ) -> Markup:
-        """Load Font Awesome `WebFonts + CSS <https://fontawesome.com/docs/web/setup/host-yourself/webfonts>`_ resources for the given version.
+        """Load Font Awesome's `WebFonts + CSS <https://fontawesome.com/docs/web/setup/host-yourself/webfonts>`_ resources for the given version.
 
         Some examples:
             >>> font_awesome.load_css()
@@ -264,7 +264,7 @@ class FontAwesome:
         core_sri: str = js_sri_map[core_style],
         use_min: bool = use_min,
     ) -> Markup:
-        """Load Font Awesome `SVG + JS <https://fontawesome.com/docs/web/setup/host-yourself/svg-js>`_ resource for the given version.
+        """Load Font Awesome's `SVG + JS <https://fontawesome.com/docs/web/setup/host-yourself/svg-js>`_ resource for the given version.
 
         Some examples:
             >>> font_awesome.load_js()
