@@ -1,16 +1,23 @@
 """Font-Awesome-Flask is an extension for Flask that adds support for Font Awesome to your web application."""
 import re
+import sys
 import urllib.request
 from pathlib import Path
 from typing import Optional, Union
 
 from flask import Blueprint, Flask, Markup, current_app, url_for
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 STATIC_FOLDER = Path(__file__).parent / "static"
 CDN_URL_TEMPLATE = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/{version}/{type}/{style}{possibly_min}.{ext}"
 VERSION_PATTERN = re.compile(r"Font Awesome (?:Free\s)?(\d+.\d+.\d+)")
+
+
+def _remove_prefix(s: str, prefix: str) -> str:
+    if sys.version_info < (3, 9):
+        return s[len(prefix) :] if s.startswith(prefix) else s
+    return s.removeprefix(prefix)
 
 
 class FontAwesome:
@@ -42,16 +49,12 @@ class FontAwesome:
         "brands": "fa-brands-400",
     }
 
-    def __init__(self, app: Flask | None = None) -> None:
+    def __init__(self, app: Optional[Flask] = None) -> None:
         if app is not None:
             self.init_app(app)
 
     def init_app(self, app: Flask) -> None:
-        """Initialize the Flask application for use with this extension instance.
-
-        This must be called before accessing the database engine or session with
-        the app.
-        """
+        """Initialize the Flask application for use with this extension instance."""
         # register extension instance with the Flask application
         if not hasattr(app, "extensions"):
             app.extensions = {}
@@ -162,8 +165,8 @@ class FontAwesome:
 
     def load(
         self,
-        style: str = style,
         version: str = version,
+        style: str = style,
         css_sri: str = css_sri_map[style],
         core_css_sri: str = css_sri_map[core_style],
         js_sri: str = js_sri_map[style],
@@ -171,9 +174,32 @@ class FontAwesome:
         use_min: bool = use_min,
         use_css: bool = use_css,
     ) -> Markup:
-        """Load Font Awesome CSS / JS resources with given version."""
-        if style not in self.style_choices:
-            raise ValueError(f"`style` must be one of {', '.join(self.style_choices)}")
+        """Load Font Awesome's `WebFonts + CSS <https://fontawesome.com/docs/web/setup/host-yourself/webfonts>`_ / `SVG + JS <https://fontawesome.com/docs/web/setup/host-yourself/svg-js>`_ resources for the given version. Defaults to `SVG + JS`.
+
+        Some examples:
+            >>> font_awesome.load()
+            >>> font_awesome.load(style="solid", use_css=True)
+            >>> font_awesome.load(
+            ...     version="5.9.0",
+            ...     js_sri="sha512-q3eWabyZPc1XTCmF+8/LuE1ozpg5xxn7iO89yfSOd5/oKvyqLngoNGsx8jq92Y8eXJ/IRxQbEC+FGSYxtk2oiw=="
+            ... )
+
+        Args:
+            version (str): The version to load. Defaults to `6.2.0`.
+            style (str): The `icon style(s) <https://fontawesome.com/v6/docs/web/dig-deeper/styles>`_ to load. Defaults to `all`.
+            css_sri (str): The `Subresource Integrity (SRI) <https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity>`_ for the CSS resource file when not served locally. Defaults to `sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==`.
+            core_css_sri (str): The `SRI <https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity>`_ for the core CSS resource file when not served locally. Defaults to `sha512-uj2QCZdpo8PSbRGL/g5mXek6HM/APd7k/B5Hx/rkVFPNOxAQMXD+t+bG4Zv8OAdUpydZTU3UHmyjjiHv2Ww0PA==`.
+            js_sri (str): The `SRI <https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity>`_ for the JS resource file when not served locally. Defaults to `sha512-naukR7I+Nk6gp7p5TMA4ycgfxaZBJ7MO5iC3Fp6ySQyKFHOGfpkSZkYVWV5R7u7cfAicxanwYQ5D1e17EfJcMA==`.
+            core_js_sri (str): The `SRI <https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity>`_ for the core JS resource file when not served locally. Defaults to `sha512-j3gF1rYV2kvAKJ0Jo5CdgLgSYS7QYmBVVUjduXdoeBkc4NFV4aSRTi+Rodkiy9ht7ZYEwF+s09S43Z1Y+ujUkA==`.
+            use_min (bool): Whether to use the minified resource or not. Defaults to `True`.
+            use_css (bool): Whether to use `WebFonts + CSS <https://fontawesome.com/docs/web/setup/host-yourself/webfonts>`_ over `SVG + JS <https://fontawesome.com/docs/web/setup/host-yourself/svg-js>`_. Defaults to `False`.
+
+        Raises:
+            ValueError: When trying to load a non-free icon style (i.e. not one of `all`, `regular`, `solid`, or `brands`)
+
+        Returns:
+            flask.Markup: The HTML markup for the WebFonts + CSS / SVG + JS resource(s).
+        """
         if use_css:
             return self.load_css(style, version, css_sri, core_css_sri, use_min)
         return self.load_js(style, version, js_sri, core_js_sri, use_min)
@@ -186,7 +212,28 @@ class FontAwesome:
         core_sri: str = css_sri_map[core_style],
         use_min: bool = use_min,
     ) -> Markup:
-        """Load Font Awesome's CSS resources with given version."""
+        """Load Font Awesome's `WebFonts + CSS <https://fontawesome.com/docs/web/setup/host-yourself/webfonts>`_ resources for the given version.
+
+        Some examples:
+            >>> font_awesome.load_css()
+            >>> font_awesome.load_css(style="regular")
+
+        Args:
+            version (str): The version to load. Defaults to `6.2.0`.
+            style (str): The `icon style(s) <https://fontawesome.com/v6/docs/web/dig-deeper/styles>`_ to load. Defaults to `all`.
+            sri (str): The `Subresource Integrity (SRI) <https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity>`_ for the CSS resource file when not served locally. Defaults to `sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==`.
+            core_sri (str): The `SRI <https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity>`_ for the core CSS resource file when not served locally. Defaults to `sha512-uj2QCZdpo8PSbRGL/g5mXek6HM/APd7k/B5Hx/rkVFPNOxAQMXD+t+bG4Zv8OAdUpydZTU3UHmyjjiHv2Ww0PA==`.
+            use_min (bool): Whether to use the minified resources or not. Defaults to `True`.
+
+        Raises:
+            ValueError: When trying to load a non-free icon style (i.e. not one of `all`, `regular`, `solid`, or `brands`)
+
+        Returns:
+            flask.Markup: The HTML markup for the WebFonts + CSS resources.
+        """
+        if style not in self.style_choices:
+            raise ValueError(f"`style` must be one of {', '.join(self.style_choices)}")
+
         serve_local = current_app.config["FONT_AWESOME_SERVE_LOCAL"]
         ext = "css"
 
@@ -217,7 +264,31 @@ class FontAwesome:
         core_sri: str = js_sri_map[core_style],
         use_min: bool = use_min,
     ) -> Markup:
-        """Load Font Awesome's JS resources with given version."""
+        """Load Font Awesome's `SVG + JS <https://fontawesome.com/docs/web/setup/host-yourself/svg-js>`_ resource for the given version.
+
+        Some examples:
+            >>> font_awesome.load_js()
+            >>> font_awesome.load_js(
+            ...     use_min=False,
+            ...     sri="sha512-8XtSBQOB+R4dpcpQBpYC5Q7ti7y/MjIF0l/1ZiSd4xM04Dr052S/Py981Pzmwo2HrXCR2JhYE1MYR15aZGMnig=="
+            ... )
+
+        Args:
+            version (str): The version to load. Defaults to `6.2.0`.
+            style (str): The `icon style(s) <https://fontawesome.com/v6/docs/web/dig-deeper/styles>`_ to load. Defaults to `all`.
+            sri (str): The `SRI <https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity>`_ for the JS resource file when not served locally. Defaults to `sha512-naukR7I+Nk6gp7p5TMA4ycgfxaZBJ7MO5iC3Fp6ySQyKFHOGfpkSZkYVWV5R7u7cfAicxanwYQ5D1e17EfJcMA==`.
+            core_sri (str): The `SRI <https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity>`_ for the core JS resource file when not served locally. Defaults to `sha512-j3gF1rYV2kvAKJ0Jo5CdgLgSYS7QYmBVVUjduXdoeBkc4NFV4aSRTi+Rodkiy9ht7ZYEwF+s09S43Z1Y+ujUkA==`.
+            use_min (bool): Whether to use the minified resource or not. Defaults to `True`.
+
+        Raises:
+            ValueError: When trying to load a non-free icon style (i.e. not one of `all`, `regular`, `solid`, or `brands`)
+
+        Returns:
+            flask.Markup: The HTML markup for the SVG + JS resource.
+        """
+        if style not in self.style_choices:
+            raise ValueError(f"`style` must be one of {', '.join(self.style_choices)}")
+
         serve_local = current_app.config["FONT_AWESOME_SERVE_LOCAL"]
         ext = "js"
 
@@ -243,7 +314,6 @@ class FontAwesome:
     def render_icon(
         self,
         name: str,
-        stack_size: Optional[str] = None,
         inverse: bool = False,
         size: Optional[str] = None,
         fixed_with: bool = False,
@@ -254,27 +324,52 @@ class FontAwesome:
         swap_opacity: bool = False,
         aria_hidden: bool = True,
         style: Optional[str] = None,
+        _stack_size: Optional[str] = None,
     ) -> Markup:
-        """Render an icon."""
+        """Render an icon.
+
+        See the `Font Awesome documentation <https://fontawesome.com/search?o=r&m=free>`_ for the complete list of available icons.
+
+        Some examples:
+            >>> font_awesome.render_icon('fas fa-house')
+            >>> font_awesome.render_icon('fa-regular fa-square', size='xl')
+            >>> font_awesome.render_icon('fab fa-github', inverse=True, rotation=90)
+
+        Args:
+            name (str): The name of the icon (e.g. `fa-solid fa-user`).
+            inverse (bool): Inverts the color of the icon to white. Defaults to `False`.
+            size (Optional[str]): The `relative or literal size <https://fontawesome.com/v6/docs/web/style/size>`_ of the icon. Defaults to `None`.
+            fixed_with (bool): Set the icon to a `fixed width <https://fontawesome.com/v6/docs/web/style/fixed-width>`_ for easy vertical alignment. Defaults to `False`.
+            rotation (Optional[Union[str, int]]): `Rotate or flip <https://fontawesome.com/v6/docs/web/style/rotate>`_ the icon. Defaults to `None`.
+            animation (Optional[str]): `Animate <https://fontawesome.com/v6/docs/web/style/animate>`_ the icon. Defaults to `None`.
+            border (bool): Add a `border <https://fontawesome.com/v6/docs/web/style/pull>`_ to the icon. Defaults to `False`.
+            pull (Optional[str]): `Pull <https://fontawesome.com/v6/docs/web/style/pull>`_ the icon left or right. Defaults to `None`.
+            swap_opacity (bool): Swap the default opacity of each layer in a `duotone <https://fontawesome.com/v6/docs/web/style/duotone>`_ icon. Defaults to `False`.
+            aria_hidden (bool): Add the `aria-hidden` attribute to the icon. Defaults to `True`.
+            style (Optional[str]): Customize the icon even further using `CSS styling <https://fontawesome.com/v6/docs/web/style/custom>`_. Defaults to `None`.
+
+        Returns:
+            flask.Markup: The HTML markup for the icon.
+        """
         icon = f'<i class="{name}'
-        if stack_size:
-            icon += f" fa-stack-{stack_size}"
+        if _stack_size:
+            icon += f" fa-stack-{_remove_prefix(_stack_size, 'fa-stack-')}"
         if inverse:
             icon += " fa-inverse"
         if size is not None:
-            icon += f" fa-{size}"
+            icon += f" fa-{_remove_prefix(size, 'fa-')}"
         if fixed_with:
             icon += " fa-fw"
         if rotation is not None:
             if isinstance(rotation, int):
                 rotation = f"rotate-{rotation}"
-            icon += f" fa-{rotation}"
+            icon += f" fa-{_remove_prefix(rotation, 'fa-')}"
         if animation is not None:
-            icon += f" fa-{animation}"
+            icon += f" fa-{_remove_prefix(animation, 'fa-')}"
         if border:
             icon += " fa-border"
         if pull is not None:
-            icon += f" fa-pull-{pull}"
+            icon += f" fa-pull-{_remove_prefix(pull, 'fa-pull-')}"
         if swap_opacity:
             icon += " fa-swap-opacity"
         icon += '"'
@@ -285,7 +380,7 @@ class FontAwesome:
         icon += "></i>"
         return Markup(icon)
 
-    def render_stacked_icons(
+    def render_stacked_icon(
         self,
         name_1: str,
         name_2: str,
@@ -298,16 +393,49 @@ class FontAwesome:
         style_1: Optional[str] = None,
         style_2: Optional[str] = None,
     ) -> Markup:
+        """Render a `stacked <https://fontawesome.com/v6/docs/web/style/stack>`_ icon.
+
+        Some examples:
+            >>> font_awesome.render_stacked_icon(
+            ...     "fa-solid fa-square",
+            ...     "fab fa-twitter",
+            ...     inverse=True,
+            ...     size="2x",
+            ... )
+            >>> font_awesome.render_stacked_icon(
+            ...     "fa-solid fa-camera",
+            ...     "fa-solid fa-ban",
+            ...     stack_size_1="1x",
+            ...     stack_size_2="2x",
+            ...     size="2x",
+            ...     style_2="color:Tomato",
+            ... )
+
+        Args:
+            name_1 (str): The name of the first icon (e.g. `fa-solid fa-square`).
+            name_2 (str): The name of the second icon (e.g. `fab fa-twitter`).
+            stack_size_1 (str): The relative size of the first icon. One of `1x` or `2x`. Defaults to `2x`.
+            stack_size_2 (str): The relative size of the second icon. One of `1x` or `2x`. Defaults to `1x`.
+            inverse (bool): Inverts the color of the icon to white. Defaults to `False`.
+            size (Optional[str]): The `relative or literal size <https://fontawesome.com/v6/docs/web/style/size>`_ of the stacked icon. Defaults to `None`.
+            aria_hidden (bool): Add the `aria-hidden` attribute to the icon. Defaults to `True`.
+            style (Optional[str]): Customize the stacked icon even further using `CSS styling <https://fontawesome.com/v6/docs/web/style/custom>`_. Defaults to `None`.
+            style_1 (Optional[str]): Customize the first icon even further using `CSS styling <https://fontawesome.com/v6/docs/web/style/custom>`_. Defaults to `None`.
+            style_2 (Optional[str]): Customize the second icon even further using `CSS styling <https://fontawesome.com/v6/docs/web/style/custom>`_. Defaults to `None`.
+
+        Returns:
+            flask.Markup: The HTML markup for the icon.
+        """
         span = '<span class="fa-stack'
         if size is not None:
-            span += f" fa-{size}"
+            span += f" fa-{_remove_prefix(size, 'fa-')}"
         span += '"'
         if style is not None:
             span += f' style="{style}"'
         if aria_hidden:
             span += ' aria-hidden="true"'
         span += ">"
-        span += f"\n    {self.render_icon(name_1, stack_size_1, inverse if stack_size_1 == '1x' else False, aria_hidden=False, style=style_1)}"
-        span += f"\n    {self.render_icon(name_2, stack_size_2, inverse if stack_size_2 == '1x' else False, aria_hidden=False, style=style_2)}"
+        span += f"\n    {self.render_icon(name_1, inverse if stack_size_1 == '1x' else False, aria_hidden=False, style=style_1, _stack_size=stack_size_1)}"
+        span += f"\n    {self.render_icon(name_2, inverse if stack_size_2 == '1x' else False, aria_hidden=False, style=style_2, _stack_size=stack_size_2)}"
         span += "\n</span>"
         return Markup(span)
