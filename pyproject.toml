@@ -56,5 +56,20 @@ Issues = "https://github.com/sgraaf/font-awesome-flask/issues"
 [tool.flit.module]
 name = "flask_font_awesome"
 
-[tool.isort]
-profile = "black"
+[tool.ruff]
+select = [
+    "B",
+    "C90",
+    "E",
+    "F",
+    "I",
+    "UP",
+    "RUF100",
+    "W",
+]
+ignore = ["E501"]
+src = ["src"]
+target-version = "py37"
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]

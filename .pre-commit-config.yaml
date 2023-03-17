@@ -1,3 +1,11 @@
+ci:
+  autofix_commit_msg: |
+    :art: [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+    for more information, see https://pre-commit.ci
+  autoupdate_schedule: monthly
+  autoupdate_commit_msg: ":arrow_up: [pre-commit.ci] pre-commit autoupdate"
+
 default_language_version:
   python: python3.10
 
@@ -5,55 +13,52 @@ exclude: '^.*\.min\..*$'
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.3.0
+    rev: v4.4.0
     hooks:
       - id: check-json
       - id: check-toml
       - id: check-xml
       - id: check-yaml
       - id: end-of-file-fixer
-      - id: requirements-txt-fixer
       - id: trailing-whitespace
-  - repo: https://github.com/PyCQA/autoflake
-    rev: v1.7.6
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.12.1
     hooks:
-      - id: autoflake
+      - id: validate-pyproject
+        name: validate pyproject.toml
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.22.0
+    hooks:
+      - id: check-github-workflows
+        name: validate github workflows
+      - id: check-readthedocs
+        name: validate readthedocs config
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.256
+    hooks:
+      - id: ruff
         args:
-          - --in-place
-          - --recursive
-          - --remove-all-unused-imports
-          - --ignore-init-module-imports
-          - --remove-unused-variables
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.1.0
-    hooks:
-      - id: pyupgrade
-        args:
-          - --py39-plus
-  - repo: https://github.com/pycqa/isort
-    rev: 5.10.1
-    hooks:
-      - id: isort
+          - --fix
+          - --exit-non-zero-on-fix
+          - --show-fixes
   - repo: https://github.com/psf/black
-    rev: 22.10.0
+    rev: 23.1.0
     hooks:
       - id: black
-  - repo: https://github.com/asottile/blacken-docs
-    rev: v1.12.1
-    hooks:
-      - id: blacken-docs
-        additional_dependencies:
-          - black==22.10.0
-  - repo: https://github.com/PyCQA/flake8
-    rev: 5.0.4
-    hooks:
-      - id: flake8
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.982
+    rev: v1.1.1
     hooks:
       - id: mypy
+        additional_dependencies:
+          - types-requests
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.4
+    hooks:
+      - id: codespell
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v2.7.1
     hooks:
       - id: prettier
+        additional_dependencies:
+          - prettier@2.8.4
         exclude_types: [html]

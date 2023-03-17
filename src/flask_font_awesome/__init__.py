@@ -311,7 +311,7 @@ class FontAwesome:
 
         return Markup(js)
 
-    def render_icon(
+    def render_icon(  # noqa: C901
         self,
         name: str,
         inverse: bool = False,
