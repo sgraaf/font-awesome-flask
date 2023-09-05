@@ -1,0 +1,42 @@
+name: Upgrade Font Awesome to the latest version
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "57 2 * * *"
+
+env:
+  LIBRARY: font-awesome
+  STATIC_FILE: js/all.min.js
+
+jobs:
+  scheduled:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out this repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Configure Git for commits
+        run: |-
+          git config user.name "Automated"
+          git config user.email "actions@users.noreply.github.com"
+      - name: Get the latest version
+        run: |-
+          echo 'LATEST_VERSION='$(curl -s https://api.cdnjs.com/libraries/$LIBRARY?fields=version | jq -r .version) >> $GITHUB_ENV
+      - name: Download the latest static file
+        run: |-
+          curl -s https://cdnjs.cloudflare.com/ajax/libs/$LIBRARY/$LATEST_VERSION/$STATIC_FILE -o src/flask_font_awesome/static/$STATIC_FILE
+      - name: Update `__version__`
+        run: |-
+          sed -i "s/version = \"[0-9]\+\.[0-9]\+\.[0-9]\+\"/version = \"$LATEST_VERSION\"/" src/flask_font_awesome/__init__.py
+      - name: update SRI maps
+        run: |-
+          sri=$(curl -s https://api.cdnjs.com/libraries/$LIBRARY/$LATEST_VERSION?fields=sri)
+          echo $sri | jq --indent 4 '{"all": .sri."css/all.min.css", "regular": .sri."css/regular.min.css", "solid": .sri."css/solid.min.css", "brands": .sri."css/brands.min.css", "fontawesome": .sri."css/fontawesome.min.css"}' > src/flask_font_awesome/data/css_sris.json
+          echo $sri | jq --indent 4 '{"all": .sri."js/all.min.js", "regular": .sri."js/regular.min.js", "solid": .sri."js/solid.min.js", "brands": .sri."js/brands.min.js", "fontawesome": .sri."js/fontawesome.min.js"}' > src/flask_font_awesome/data/js_sris.json
+      - name: Commit and push if there are any changes
+        run: |-
+          git add -A
+          git commit -m ":arrow_up: Upgrade Font Awesome to version $LATEST_VERSION" || exit 0
+          git push
