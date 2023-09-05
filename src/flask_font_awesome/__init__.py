@@ -1,15 +1,22 @@
 """Font-Awesome-Flask is an extension for Flask that adds support for Font Awesome to your web application."""
+import json
 import re
 import sys
 import urllib.request
 from pathlib import Path
 from typing import Optional, Union
 
+if sys.version_info < (3, 10):
+    from importlib_resources import files
+else:
+    from importlib.resources import files
+
 from flask import Blueprint, Flask, Markup, current_app, url_for
 
 __version__ = "0.1.1"
 
-STATIC_FOLDER = Path(__file__).parent / "static"
+STATIC_FOLDER = Path(files("flask_font_awesome") / "static")  # type: ignore
+DATA_DIR = Path(files("flask_font_awesome") / "data")  # type: ignore
 CDN_URL_TEMPLATE = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/{version}/{type}/{style}{possibly_min}.{ext}"
 VERSION_PATTERN = re.compile(r"Font Awesome (?:Free\s)?(\d+.\d+.\d+)")
 
@@ -28,21 +35,9 @@ class FontAwesome:
     core_style = "fontawesome"
     use_min = True
     use_css = False
-    version = "6.2.0"
-    css_sri_map = {
-        "all": "sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==",
-        "regular": "sha512-aNH2ILn88yXgp/1dcFPt2/EkSNc03f9HBFX0rqX3Kw37+vjipi1pK3L9W08TZLhMg4Slk810sPLdJlNIjwygFw==",
-        "solid": "sha512-uj2QCZdpo8PSbRGL/g5mXek6HM/APd7k/B5Hx/rkVFPNOxAQMXD+t+bG4Zv8OAdUpydZTU3UHmyjjiHv2Ww0PA==",
-        "brands": "sha512-+oRH6u1nDGSm3hH8poU85YFIVTdSnS2f+texdPGrURaJh8hzmhMiZrQth6l56P4ZQmxeZzd2DqVEMqQoJ8J89A==",
-        "fontawesome": "sha512-uj2QCZdpo8PSbRGL/g5mXek6HM/APd7k/B5Hx/rkVFPNOxAQMXD+t+bG4Zv8OAdUpydZTU3UHmyjjiHv2Ww0PA==",
-    }
-    js_sri_map = {
-        "all": "sha512-naukR7I+Nk6gp7p5TMA4ycgfxaZBJ7MO5iC3Fp6ySQyKFHOGfpkSZkYVWV5R7u7cfAicxanwYQ5D1e17EfJcMA==",
-        "regular": "sha512-Kcbb5bDGCQQwo67YHS9uDvRmyrNEqHLPA1Kmn0eqrritqGDp3OpkBGvHk36GNEH44MtWM1L5k3i9MSQPMkNIuA==",
-        "solid": "sha512-dcTe66qF6q/NW1X64tKXnDDcaVyRowrsVQ9wX6u7KSQpYuAl5COzdMIYDg+HqAXhPpIz1LO9ilUCL4qCbHN5Ng==",
-        "brands": "sha512-1e+6G7fuQ5RdPcZcRTnR3++VY2mjeh0+zFdrD580Ell/XcUw/DQLgad5XSCX+y2p/dmJwboZYBPoiNn77YAL5A==",
-        "fontawesome": "sha512-j3gF1rYV2kvAKJ0Jo5CdgLgSYS7QYmBVVUjduXdoeBkc4NFV4aSRTi+Rodkiy9ht7ZYEwF+s09S43Z1Y+ujUkA==",
-    }
+    version = "6.4.2"
+    css_sri_map = json.load(DATA_DIR.joinpath("css_sris.json").open())
+    js_sri_map = json.load(DATA_DIR.joinpath("js_sris.json").open())
     webfonts_map = {
         "regular": "fa-regular-400",
         "solid": "fa-solid-900",
