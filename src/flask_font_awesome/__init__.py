@@ -35,7 +35,7 @@ class FontAwesome:
     core_style = "fontawesome"
     use_min = True
     use_css = False
-    version = "6.4.2"
+    version = "6.5.0"
     css_sri_map = json.load(DATA_DIR.joinpath("css_sris.json").open())
     js_sri_map = json.load(DATA_DIR.joinpath("js_sris.json").open())
     webfonts_map = {

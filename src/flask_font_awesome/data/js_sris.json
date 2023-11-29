@@ -1,7 +1,7 @@
 {
-    "all": "sha512-uKQ39gEGiyUJl4AI6L+ekBdGKpGw4xJ55+xyJG7YFlJokPNYegn9KwQ3P8A7aFQAUtUsAQHep+d/lrGqrbPIDQ==",
-    "regular": "sha512-kSAGSlODsZwG7bMv/Hydyvybjk+WOz4oEqQiWYwpCxQ7/7yXMFynr2QrvNc2myZW/7wyi0IF2TXZZWMeg8AGhw==",
-    "solid": "sha512-s6yNeC6faUgveCQocceGXVia7ciAebyTH7hRNazwZa2FHhnxX22qaGeb9d3a8PUKdnoHo3T3bYI/0ZOjmgWkNg==",
-    "brands": "sha512-IZeK0c+nwCpZdoWLUoguVYEnBOwOnS3eTyS5Eg57YCk41x2NphG1E/vSa886whDSXG7vGauI8mmbP5PI/VC5LQ==",
-    "fontawesome": "sha512-64O4TSvYybbO2u06YzKDmZfLj/Tcr9+oorWhxzE3yDnmBRf7wvDgQweCzUf5pm2xYTgHMMyk5tW8kWU92JENng=="
+    "all": "sha512-xgIrH5DRuEOcZK5cPtVXx/WSp5DTir2JNcKE5ahV2u51NCTD9UDxbQgZHYHVBlPc4H8tug6BZTYIl2RdA/X0Vg==",
+    "regular": "sha512-v8Y1RPBDhIl6ljVVc2BPskTFu+1ZXHt8OjxjwN+u6iCNe8RODApNYeCycaa9I2+0Q+TC0ArQAc6aDzkMbEHV9A==",
+    "solid": "sha512-86j9kj2hqje32NDU8p9TjZesB/4i7wIlE/2Lc4+sSfGmyTRbBzBspow38bzWtl1aiCPuNd0npEw+UiTHmyUOxQ==",
+    "brands": "sha512-n/BsTkdIQFb53DuQ0Tv2pb9jr7xzVFZkAxdxEfRBs7sbFgfnVOUSnvJiRt9ednWN8yJJL1f+zQVLmDWmlA3MqA==",
+    "fontawesome": "sha512-22flhOyPNWzkYE2LbBCEX+m5tw5RBuw0AKCKURp96YgdoPWNtGrWuViceL0Ey0L/sHZyZXPT53ofUlAI6E+u+g=="
 }
