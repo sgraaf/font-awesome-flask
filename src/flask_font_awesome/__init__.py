@@ -11,7 +11,8 @@ if sys.version_info < (3, 10):
 else:
     from importlib.resources import files
 
-from flask import Blueprint, Flask, Markup, current_app, url_for
+from flask import Blueprint, Flask, current_app, url_for
+from markupsafe import Markup
 
 __version__ = "0.1.5"
 
