@@ -1,4 +1,4 @@
-name: Bump package version and create release on Font Awesome library version upgrade
+name: Bump package version and create release
 
 on:
   workflow_dispatch:
