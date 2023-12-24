@@ -1,4 +1,4 @@
-name: Upgrade Font Awesome library to the latest version
+name: Upgrade Font Awesome library
 
 on:
   workflow_dispatch:
