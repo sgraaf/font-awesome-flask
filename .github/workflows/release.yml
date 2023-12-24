@@ -1,0 +1,52 @@
+name: Bump package version and create release on Font Awesome library version upgrade
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "src/flask_font_awesome/data/js_sris.json"
+
+env:
+  INIT_FILE: src/flask_font_awesome/__init__.py
+
+jobs:
+  bump-version-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out this repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Configure Git for commits
+        run: |-
+          git config user.name "Automated"
+          git config user.email "actions@users.noreply.github.com"
+      - name: Get the current package version
+        run: |-
+          echo 'CURRENT_VERSION='$(grep -oP '__version__ = "\K[^"]+' $INIT_FILE) >> $GITHUB_ENV
+      - name: Get the library version
+        run: |-
+          echo 'LIBRARY_VERSION='$(grep -oP 'version = "\K[^"]+' $INIT_FILE) >> $GITHUB_ENV
+      - name: Increment the patch
+        run: |-
+          echo 'NEW_VERSION='$(echo $CURRENT_VERSION | awk -F. '/[0-9]+\./{$NF++;print}' OFS=.) >> $GITHUB_ENV
+      - name: Update `__version__`
+        run: |-
+          sed -i "s/__version__ = \"$CURRENT_VERSION\"/__version__ = \"$NEW_VERSION\"/" $INIT_FILE
+      - name: Commit and push changes and tags
+        run: |-
+          git add $INIT_FILE
+          git commit -m ":bookmark: Bump version to $NEW_VERSION"
+          git tag -a "v$NEW_VERSION" -m ":bookmark: Release version $NEW_VERSION"
+          git push origin main --tags
+      - name: Create a GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: "v$NEW_VERSION"
+          tag_name: "v$NEW_VERSION"
+          body: |
+            # v$NEW_VERSION ($(date '+%Y-%m-%d'))
+
+            ## Changes
+
+            -   Upgraded Font Awesome to version $LIBRARY_VERSION
