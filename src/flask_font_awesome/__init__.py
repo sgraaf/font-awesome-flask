@@ -13,7 +13,7 @@ else:
 
 from flask import Blueprint, Flask, Markup, current_app, url_for
 
-__version__ = "0.1.5"
+__version__ = "0.1.2"
 
 STATIC_FOLDER = Path(files("flask_font_awesome") / "static")  # type: ignore
 DATA_DIR = Path(files("flask_font_awesome") / "data")  # type: ignore
