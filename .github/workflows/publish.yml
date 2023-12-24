@@ -2,9 +2,13 @@ name: Publish Python Package
 
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - v*
+  workflow_run:
+    workflows:
+      - Bump package version and create release
+    types:
+      - completed
+  release:
+    types: [published]
 
 jobs:
   publish:
