@@ -27,6 +27,9 @@ jobs:
       - name: Get the library version
         run: |-
           echo 'LIBRARY_VERSION='$(grep -oP 'version = "\K[^"]+' $INIT_FILE) >> $GITHUB_ENV
+      - name: Get the current date
+        run: |-
+          echo 'CURRENT_DATE='$(date '+%Y-%m-%d') >> $GITHUB_ENV
       - name: Increment the patch
         run: |-
           echo 'NEW_VERSION='$(echo $CURRENT_VERSION | awk -F. '/[0-9]+\./{$NF++;print}' OFS=.) >> $GITHUB_ENV
@@ -42,11 +45,11 @@ jobs:
       - name: Create a GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          name: "v$NEW_VERSION"
-          tag_name: "v$NEW_VERSION"
+          name: v${{ env.NEW_VERSION }}
+          tag_name: v${{ env.NEW_VERSION }}
           body: |
-            # v$NEW_VERSION ($(date '+%Y-%m-%d'))
+            # v${{ env.NEW_VERSION }} (${{ env.CURRENT_DATE }})
 
             ## Changes
 
-            -   Upgraded Font Awesome to version $LIBRARY_VERSION
+            -   Upgraded Font Awesome to version ${{ env.LIBRARY_VERSION }}
