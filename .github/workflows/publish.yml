@@ -7,12 +7,19 @@ on:
       - Bump package version and create release
     types:
       - completed
+    branches:
+      - main
   release:
-    types: [published]
+    types:
+      - published
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||
+      github.event_name == 'release'
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v3

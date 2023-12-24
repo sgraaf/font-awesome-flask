@@ -3,6 +3,8 @@ name: Bump package version and create release
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
       - "src/flask_font_awesome/data/js_sris.json"
 
