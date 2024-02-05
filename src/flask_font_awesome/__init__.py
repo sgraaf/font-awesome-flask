@@ -1,4 +1,5 @@
 """Font-Awesome-Flask is an extension for Flask that adds support for Font Awesome to your web application."""
+
 import json
 import re
 import sys
