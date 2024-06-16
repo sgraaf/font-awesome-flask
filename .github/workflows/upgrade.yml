@@ -8,7 +8,7 @@ on:
 env:
   LIBRARY: font-awesome
   INPUT_FILE: input-for-cookiecutter.txt
-  STATIC_FILE: all.min.js
+  STATIC_FILE: js/all.min.js
 
 jobs:
   upgrade-library:
@@ -24,13 +24,12 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
       - name: Get the latest library version
         run: |-
-          echo 'VERSION='$(curl -s https://api.cdnjs.com/libraries/$LIBRARY?fields=version | jq -r .version) >> $GITHUB_ENV
+          VERSION=$(curl -s https://api.cdnjs.com/libraries/$LIBRARY?fields=version | jq -r .version)
           echo $VERSION >> $INPUT_FILE
-      - name: Get the latest static file
+          echo 'VERSION='$VERSION >> $GITHUB_ENV
+      - name: Download the latest static file
         run: |-
-          curl -s https://cdnjs.cloudflare.com/ajax/libs/$LIBRARY/$VERSION/js/$STATIC_FILE -o $STATIC_FILE
-          sed '$!s/$/\\n/' $STATIC_FILE | tr -d '\n' >> $INPUT_FILE
-          echo "" >> $INPUT_FILE
+          curl -s https://cdnjs.cloudflare.com/ajax/libs/$LIBRARY/$VERSION/$STATIC_FILE -o src/flask_font_awesome/static/$STATIC_FILE
       - name: Get CSS and JS SRI maps
         run: |-
           SRI=$(curl -s https://api.cdnjs.com/libraries/$LIBRARY/$VERSION?fields=sri)
@@ -38,14 +37,16 @@ jobs:
           echo $SRI | jq --compact-output '{"all": .sri."js/all.min.js", "regular": .sri."js/regular.min.js", "solid": .sri."js/solid.min.js", "brands": .sri."js/brands.min.js", "fontawesome": .sri."js/fontawesome.min.js"}' >> $INPUT_FILE
       - name: Build source code
         run: |
+          cat $INPUT_FILE
           cat $INPUT_FILE | pipx run cookiecutter --overwrite-if-exists template
       - name: Run pre-commit hooks
         run: |
           pipx run pre-commit run --files src/**/*
+        continue-on-error: true
       - name: Commit and push if there are any changes
         run: |-
-          git add -A src
-          if ! git diff --quiet; then
+          git add src
+          if ! git diff --cached --quiet src; then
             git commit -m ":arrow_up: Upgrade Font Awesome to version $VERSION"
             git push
           fi

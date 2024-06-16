@@ -6,10 +6,11 @@ on:
     branches:
       - main
     paths:
-      - "src/flask_font_awesome/data/js_sris.json"
+      - "src/flask_font_awesome/static/js/all.min.js"
 
 env:
   INIT_FILE: src/flask_font_awesome/__init__.py
+  TEMPLATE_INIT_FILE: "template/{{ cookiecutter.__folder_name }}/flask_font_awesome/__init__.py"
 
 jobs:
   bump-version-and-release:
@@ -38,9 +39,10 @@ jobs:
       - name: Update `__version__`
         run: |-
           sed -i "s/__version__ = \"$CURRENT_VERSION\"/__version__ = \"$NEW_VERSION\"/" $INIT_FILE
+          sed -i "s/__version__ = \"$CURRENT_VERSION\"/__version__ = \"$NEW_VERSION\"/" $TEMPLATE_INIT_FILE
       - name: Commit and push changes and tags
         run: |-
-          git add $INIT_FILE
+          git add $INIT_FILE $TEMPLATE_INIT_FILE
           git commit -m ":bookmark: Bump version to $NEW_VERSION"
           git tag -a "v$NEW_VERSION" -m ":bookmark: Release version $NEW_VERSION"
           git push origin main --tags

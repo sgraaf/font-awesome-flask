@@ -14,7 +14,7 @@ else:
 from flask import Blueprint, Flask, current_app, url_for
 from markupsafe import Markup
 
-__version__ = "0.1.4"
+__version__ = "0.1.5"
 
 STATIC_FOLDER = Path(files("flask_font_awesome") / "static")  # type: ignore
 CDN_URL_TEMPLATE = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/{version}/{type}/{style}{possibly_min}.{ext}"

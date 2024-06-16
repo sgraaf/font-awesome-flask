@@ -1,5 +1,5 @@
 """Font-Awesome-Flask is an extension for Flask that adds support for Font Awesome to your web application."""
-import json
+
 import re
 import sys
 import urllib.request
@@ -17,7 +17,6 @@ from markupsafe import Markup
 __version__ = "0.1.5"
 
 STATIC_FOLDER = Path(files("flask_font_awesome") / "static")  # type: ignore
-DATA_DIR = Path(files("flask_font_awesome") / "data")  # type: ignore
 CDN_URL_TEMPLATE = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/{version}/{type}/{style}{possibly_min}.{ext}"
 VERSION_PATTERN = re.compile(r"Font Awesome (?:Free\s)?(\d+.\d+.\d+)")
 
@@ -37,8 +36,20 @@ class FontAwesome:
     use_min = True
     use_css = False
     version = "6.5.1"
-    css_sri_map = json.load(DATA_DIR.joinpath("css_sris.json").open())
-    js_sri_map = json.load(DATA_DIR.joinpath("js_sris.json").open())
+    css_sri_map = {
+        "all": "sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==",
+        "regular": "sha512-TzeemgHmrSO404wTLeBd76DmPp5TjWY/f2SyZC6/3LsutDYMVYfOx2uh894kr0j9UM6x39LFHKTeLn99iz378A==",
+        "solid": "sha512-pZlKGs7nEqF4zoG0egeK167l6yovsuL8ap30d07kA5AJUq+WysFlQ02DLXAmN3n0+H3JVz5ni8SJZnrOaYXWBA==",
+        "brands": "sha512-8RxmFOVaKQe/xtg6lbscU9DU0IRhURWEuiI0tXevv+lXbAHfkpamD4VKFQRto9WgfOJDwOZ74c/s9Yesv3VvIQ==",
+        "fontawesome": "sha512-d0olNN35C6VLiulAobxYHZiXJmq+vl+BGIgAxQtD5+kqudro/xNMvv2yIHAciGHpExsIbKX3iLg+0B6d0k4+ZA==",
+    }
+    js_sri_map = {
+        "all": "sha512-GWzVrcGlo0TxTRvz9ttioyYJ+Wwk9Ck0G81D+eO63BaqHaJ3YZX9wuqjwgfcV/MrB2PhaVX9DkYVhbFpStnqpQ==",
+        "regular": "sha512-T4H/jsKWzCRypzaFpVpYyWyBUhjKfp5e/hSD234qFO/h45wKAXba+0wG/iFRq1RhybT7dXxjPYYBYCLAwPfE0Q==",
+        "solid": "sha512-+fI924YJzeYFv7M0R29zJvRThPinSUOAmo5rpR9v6G4eWIbva/prHdZGSPN440vuf781/sOd/Fr+5ey0pqdW9w==",
+        "brands": "sha512-giAmE8KpCT6HP3DEwIvW9LYVnDs79iIaKEYFTjH62EWoglWgdAJa1ahiLUfoc3NFaAeWM6E3VdQyH1Ob2dmwQw==",
+        "fontawesome": "sha512-C8qHv0HOaf4yoA7ISuuCTrsPX8qjolYTZyoFRKNA9dFKnxgzIHnYTOJhXQIt6zwpIFzCrRzUBuVgtC4e5K1nhA==",
+    }
     webfonts_map = {
         "regular": "fa-regular-400",
         "solid": "fa-solid-900",
