@@ -7,7 +7,8 @@ on:
 
 env:
   LIBRARY: font-awesome
-  STATIC_FILE: js/all.min.js
+  INPUT_FILE: input-for-cookiecutter.txt
+  STATIC_FILE: all.min.js
 
 jobs:
   upgrade-library:
@@ -23,22 +24,28 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
       - name: Get the latest library version
         run: |-
-          echo 'LATEST_VERSION='$(curl -s https://api.cdnjs.com/libraries/$LIBRARY?fields=version | jq -r .version) >> $GITHUB_ENV
-      - name: Download the latest static file
+          echo 'VERSION='$(curl -s https://api.cdnjs.com/libraries/$LIBRARY?fields=version | jq -r .version) >> $GITHUB_ENV
+          echo $VERSION >> $INPUT_FILE
+      - name: Get the latest static file
         run: |-
-          curl -s https://cdnjs.cloudflare.com/ajax/libs/$LIBRARY/$LATEST_VERSION/$STATIC_FILE -o src/flask_font_awesome/static/$STATIC_FILE
-      - name: Update `version`
+          curl -s https://cdnjs.cloudflare.com/ajax/libs/$LIBRARY/$VERSION/js/$STATIC_FILE -o $STATIC_FILE
+          sed '$!s/$/\\n/' $STATIC_FILE | tr -d '\n' >> $INPUT_FILE
+          echo "" >> $INPUT_FILE
+      - name: Get CSS and JS SRI maps
         run: |-
-          sed -i "s/version = \"[0-9]\+\.[0-9]\+\.[0-9]\+\"/version = \"$LATEST_VERSION\"/" src/flask_font_awesome/__init__.py
-      - name: Update SRI maps
-        run: |-
-          sri=$(curl -s https://api.cdnjs.com/libraries/$LIBRARY/$LATEST_VERSION?fields=sri)
-          echo $sri | jq --indent 4 '{"all": .sri."css/all.min.css", "regular": .sri."css/regular.min.css", "solid": .sri."css/solid.min.css", "brands": .sri."css/brands.min.css", "fontawesome": .sri."css/fontawesome.min.css"}' > src/flask_font_awesome/data/css_sris.json
-          echo $sri | jq --indent 4 '{"all": .sri."js/all.min.js", "regular": .sri."js/regular.min.js", "solid": .sri."js/solid.min.js", "brands": .sri."js/brands.min.js", "fontawesome": .sri."js/fontawesome.min.js"}' > src/flask_font_awesome/data/js_sris.json
+          SRI=$(curl -s https://api.cdnjs.com/libraries/$LIBRARY/$VERSION?fields=sri)
+          echo $SRI | jq --compact-output '{"all": .sri."css/all.min.css", "regular": .sri."css/regular.min.css", "solid": .sri."css/solid.min.css", "brands": .sri."css/brands.min.css", "fontawesome": .sri."css/fontawesome.min.css"}' >> $INPUT_FILE
+          echo $SRI | jq --compact-output '{"all": .sri."js/all.min.js", "regular": .sri."js/regular.min.js", "solid": .sri."js/solid.min.js", "brands": .sri."js/brands.min.js", "fontawesome": .sri."js/fontawesome.min.js"}' >> $INPUT_FILE
+      - name: Build source code
+        run: |
+          cat $INPUT_FILE | pipx run cookiecutter --overwrite-if-exists template
+      - name: Run pre-commit hooks
+        run: |
+          pipx run pre-commit run --files src/**/*
       - name: Commit and push if there are any changes
         run: |-
-          git add -A
+          git add -A src
           if ! git diff --quiet; then
-            git commit -m ":arrow_up: Upgrade Font Awesome to version $LATEST_VERSION"
+            git commit -m ":arrow_up: Upgrade Font Awesome to version $VERSION"
             git push
           fi

@@ -9,7 +9,7 @@ ci:
 default_language_version:
   python: python3.10
 
-exclude: '^.*\.min\..*$'
+exclude: '^(.*\.min\..*$|template/)'
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
