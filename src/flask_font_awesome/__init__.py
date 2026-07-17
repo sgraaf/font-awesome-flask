@@ -35,9 +35,9 @@ class FontAwesome:
     core_style = "fontawesome"
     use_min = True
     use_css = False
-    version = "7.2.0"
-    css_sri_map = {'all': 'sha512-F/yRpRY8sctKzP7exU5PLGejwg/QtjDX6CIy/41nApe7JqdZgCcCzJTNq9Rcp/XwbeeTGillGevBakruY15pxA==', 'regular': 'sha512-/VLlf7Ogkroe+IPZsLKxt56ElijNjNrQlL1I9Iulr70Ur/s6lKZqQG07scPqMEK1oveRnXIZtTevrZhvntFCGA==', 'solid': 'sha512-T5yDk7+PoPzWHH6a6iFzjpZjbWK+qmNqDFHxcp1onTB77wqqcnDqRZ2IaIXUsq8oPLHwFYuwuYRi4q/ahH1zaQ==', 'brands': 'sha512-N429FZtKvV43L3wUVXa477OUmso02/nFkLl6fgVHNnBL7LzupNMR6hSp7Dr1OpZaZK2Qek0Mrf9apF4XA1BY6g==', 'fontawesome': 'sha512-hCwq0YsxXGqCBMpCCIDsaTCpulOwmZLydeEtRm5outnKd+4+JlQvkYxFZbmO1NsdGAchDZVGQVvvGSsW1tOoMw=='}
-    js_sri_map = {'all': 'sha512-yPy6ZYK58TvqpM57CcYXJ91nG3z8tvT1+2HD/OmVWzGg/KipUYn3atyQn1mUfu7h+Aj26zDnheXDgWee3tk+DA==', 'regular': 'sha512-Q6mybtz7FlVP2TrsHFeJrmQCaB+HVKyrkcwdhaoh9s6nMoeo7UjmZO46pW5yUGiinIGpcOLrgtGZzRSQvtDW9Q==', 'solid': 'sha512-WHfFhBtVXiEPDjpkxlQG6a35LDuhTghDfnY6ypiTL9DXLUNgb1IUsPVDYzmYCQ1faXhabyjMf775dYR2+Ajw1w==', 'brands': 'sha512-FPZ7oslZ86CyV092TmvscAwpD6b5kCeyvVEhAI6ggK4Hf/kQffE+tcZyGpyNYsKq4uWasQHbHDVR7Pj/Z64zKw==', 'fontawesome': 'sha512-F2v1QUbZ8nJkJjghHJQEE+9k7u8sRxfMclSLrUc57rKrlPeKUyAiwO+Z6V8XQIRKS12ufc0zC5K1/yhBYOlrUQ=='}
+    version = "7.3.0"
+    css_sri_map = {'all': 'sha512-ApSLB1Pd3/bZN8fWB/RG9YhN/7bd9Hkf3AGaE2mPfebjrxagjuBtx2GcgdqIlJkUzwylBo61r9Xa9NmgBI0swA==', 'regular': 'sha512-NS4bvr33ByUDu2Gn8VorG7iI8slpV+QnGmQf52yTjsCnCKMKzJq1/ldMlR8NEPxhZosvqg9hGFX8BrRQI/yF9w==', 'solid': 'sha512-F65MsQcUqnYC7fOE5OrV/jETVn0ANBJjJ7Pe45tVmx7yr7SlHISUdPUiVap4+G79+7b5arc6xcoxPeJlPGepPg==', 'brands': 'sha512-JvNYE/c3wl/dRKs3ZHX+QHe21Et1/ouedfAKJsQPB0XJ+QjVWipm2MVgK3BgrJbdTBXTg/r4rmY4nj6fuzWPyg==', 'fontawesome': 'sha512-WAQldzapOKc+yIZB/g4npsWhF43dQ74uxwR6WkySVIKVGKaVNSuRw19CQeqN2OmYmg34g7TsZv3sh9nsQXYj3g=='}
+    js_sri_map = {'all': 'sha512-BivWm1+PupfLofQ5Ei/fNEC6Oq6IZiGO9WUm2ibWHZ33cj/qTX4zsBW/0SN9Myo4HEmINmr0wjuQE8eDL3rmng==', 'regular': 'sha512-dqw0vf7eyzl0pIbl/D49p5qMCIgIefzJMvbxdmFIafhDsj1I2b3HiOB6WD+wOmG+9e6ioYiq+JDs7ylNsvsguQ==', 'solid': 'sha512-ws18p+6efFC97Lg9853oa01u2H+pC56PJd90xP2QP7RtREIm3CF7rjeTV3n25UOED2T5uB0EWlT+HFvucWQPHw==', 'brands': 'sha512-k7qvRTTvicgvPwHAVv3Gb1AbdATCtQzti1hru7sPKO6VD1LLLFemTh9DbffrWXl4ihI4a7ba2mXA9U2o3fHIdg==', 'fontawesome': 'sha512-CkkpcvO1IMp81fvY/fEA6iWNDXZ6+PYlb3+HlYz1Fzy+0Sh9ZknJw378WFY37Hd5Vu33+bR5hOpnAjzfgRjbOg=='}
     webfonts_map = {
         "regular": "fa-regular-400",
         "solid": "fa-solid-900",
