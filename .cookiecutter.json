@@ -1,0 +1,19 @@
+{
+    "_checkout": null,
+    "_output_dir": "/Users/sgraaf/Git",
+    "_repo_dir": "cookiecutter-python-package",
+    "_template": "cookiecutter-python-package",
+    "author": "Steven van de Graaf",
+    "copyright_year": "2022",
+    "development_status": "Development Status :: 5 - Production/Stable",
+    "email": "steven@vandegraaf.xyz",
+    "friendly_name": "Font-Awesome-Flask",
+    "github_username": "sgraaf",
+    "init_git": true,
+    "license": "GPL-3.0-only",
+    "min_python_version": "3.11",
+    "package_name": "flask_font_awesome",
+    "project_name": "font-awesome-flask",
+    "short_description": "Font-Awesome-Flask is an extension for Flask that adds support for Font Awesome to your web application.",
+    "version": "2026.1.7.3.1"
+}

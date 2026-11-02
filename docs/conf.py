@@ -1,17 +1,19 @@
 """Sphinx configuration."""
-import os
-import sys
 
-sys.path.insert(0, os.path.abspath("../src"))
-import flask_font_awesome  # noqa: E402
+from importlib import metadata
+from typing import Any
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "Font-Awesome-Flask"
-copyright = "2022, Steven van de Graaf"
 author = "Steven van de Graaf"
-release = flask_font_awesome.__version__
+copyright = f"2022, {author}"  # noqa: A001
+
+# The full version, including alpha/beta/rc tags.
+release = metadata.version("font-awesome-flask")
+# The short X.Y version.
+version = release.rsplit(".", 1)[0]
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -19,6 +21,8 @@ release = flask_font_awesome.__version__
 extensions = [
     "myst_parser",
     "sphinx.ext.autodoc",
+    "sphinx.ext.autodoc.typehints",
+    "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
     "sphinx_copybutton",
@@ -28,12 +32,19 @@ extensions = [
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
+# auto-generate header anchors and suppress header warnings
+myst_heading_anchors = 3
+suppress_warnings = ["myst.header"]
+
 intersphinx_mapping = {
-    "flask": ("https://flask.palletsprojects.com/en/latest/", None),
     "python": ("https://docs.python.org/3", None),
 }
 
 # move type hints into the description block, instead of the signature
+autodoc_member_order = "bysource"
+autodoc_default_options = {
+    "show-inheritance": True,
+}
 autodoc_typehints = "description"
 autodoc_typehints_description_target = "documented"
 
@@ -42,6 +53,6 @@ autodoc_typehints_description_target = "documented"
 
 html_theme = "furo"
 html_static_path = ["_static"]
-html_theme_options = {
-    "top_of_page_button": None,
+html_theme_options: dict[str, Any] = {
+    "top_of_page_buttons": [],
 }

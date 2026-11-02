@@ -1,78 +1,128 @@
 [build-system]
-requires = ["flit_core >=3.2,<4"]
-build-backend = "flit_core.buildapi"
+requires = ["uv_build>=0.12.13,<0.13"]
+build-backend = "uv_build"
 
 [project]
-name = "Font-Awesome-Flask"
+name = "font-awesome-flask"
+version = "2026.1.7.3.1"
+description = "Font-Awesome-Flask is an extension for Flask that adds support for Font Awesome to your web application."
 authors = [{name = "Steven van de Graaf", email = "steven@vandegraaf.xyz"}]
 readme = "README.md"
-license = {file = "LICENSE"}
+license = "GPL-3.0-only"
+license-files = ["LICENSE"]
 keywords = ["flask", "extension", "font awesome"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Environment :: Web Environment",
     "Framework :: Flask",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
-    "Topic :: Software Development :: Libraries :: Python Modules"
-
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
 ]
-requires-python = "~=3.8"
+requires-python = ">=3.11, <4"
 dependencies = [
-    "importlib-resources; python_version < '3.10'",
     "flask",
-    "markupsafe"
+    "markupsafe",
 ]
-dynamic = ["version", "description"]
 
-[project.optional-dependencies]
-dev = [
-    "autoflake",
-    "black",
-    "flake8",
-    "isort",
-    "mypy",
-    "pre-commit",
-    "pyupgrade"
-]
+[dependency-groups]
 docs = [
     "furo",
     "myst-parser",
     "sphinx",
+    "sphinx-autobuild",
     "sphinx-copybutton",
-    "sphinxext-opengraph"
+    "sphinxext-opengraph",
+]
+tests = [
+    "pytest",
+    "pytest-cov",
+]
+typing = [
+    "mypy",
+    "pyrefly",
+    "pyright[nodejs]",
+    "ty",
+    "zuban",
+]
+dev = [
+    { include-group = "docs" },
+    { include-group = "tests" },
+    { include-group = "typing" },
+    "prek",
 ]
 
 [project.urls]
-Home = "https://github.com/sgraaf/font-awesome-flask"
-Issues = "https://github.com/sgraaf/font-awesome-flask/issues"
-"Source code" = "https://github.com/sgraaf/font-awesome-flask"
+Documentation = "https://font-awesome-flask.readthedocs.io/en/stable/"
+Changelog = "https://font-awesome-flask.readthedocs.io/en/stable/changelog.html"
+"Source Code" = "https://github.com/sgraaf/font-awesome-flask"
+"Issue Tracker" = "https://github.com/sgraaf/font-awesome-flask/issues"
 
-[tool.flit.module]
-name = "flask_font_awesome"
+[tool.uv.build-backend]
+module-name = "flask_font_awesome"
 
-[tool.ruff]
-select = [
-    "B",
-    "C90",
-    "E",
-    "F",
-    "I",
-    "UP",
-    "RUF100",
-    "W",
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "COM812",  # missing-trailing-comma (flake8-commas), handled by the formatter
+    "CPY001",  # missing-copyright-notice (flake8-copyright)
+    "D102",  # undocumented-public-method (pydocstyle)
+    "D105",  # undocumented-magic-method (pydocstyle)
+    "D107",  # undocumented-public-init (pydocstyle)
+    "E501",  # line-too-long (pycodestyle), handled by the formatter
+    "PLC2401",  # non-ascii-name (Pylint)
+    "S101",   # assert (flake8-bandit)
+    "SLF001",  # private-member-access (flake8-self)
 ]
-ignore = ["E501"]
-src = ["src"]
-target-version = "py38"
+pydocstyle.convention = "google"
 
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = [
+    "F401",  # unused-import (Pyflakes)
+]
+"docs/conf.py" = [
+    "INP001",  # implicit-namespace-package (flake8-no-pep420)
+]
+"tests/**/test_*.py" = [
+    "D",  # pydocstyle
+    "PLR2004",   # magic-value-comparison (Pylint)
+    "S101",   # assert (flake8-bandit)
+    "SIM300",   # yoda-conditions (flake8-simplify)
+]
+"tests/smoke_test.py" = [
+    "D",  # pydocstyle
+    "PLR2004",   # magic-value-comparison (Pylint)
+    "S101",  # assert (flake8-bandit)
+]
+
+[tool.ty.src]
+include = ["src", "tests"]
+
+[tool.mypy]
+python_version = "3.11"
+files = ["tests"]
+
+[tool.pyrefly]
+project-includes = ["tests"]
+search-path = ["tests"]
+
+[tool.pyright]
+include = ["tests"]
+pythonVersion = "3.11"
+
+[tool.zuban]
+python_version = "3.11"
+files = ["tests"]
+
+[tool.codespell]
+# vendored minified Font Awesome assets contain icon names that trip codespell
+skip = "*.min.js"

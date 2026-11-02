@@ -1,30 +1,17 @@
 """Font-Awesome-Flask is an extension for Flask that adds support for Font Awesome to your web application."""
 
 import re
-import sys
 import urllib.request
+from importlib.resources import files
 from pathlib import Path
-from typing import Optional, Union
-
-if sys.version_info < (3, 10):
-    from importlib_resources import files
-else:
-    from importlib.resources import files
+from typing import ClassVar
 
 from flask import Blueprint, Flask, current_app, url_for
 from markupsafe import Markup
 
-__version__ = "0.1.5"
-
-STATIC_FOLDER = Path(files("flask_font_awesome") / "static")  # type: ignore
+STATIC_FOLDER = Path(str(files("flask_font_awesome") / "static"))
 CDN_URL_TEMPLATE = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/{version}/{type}/{style}{possibly_min}.{ext}"
 VERSION_PATTERN = re.compile(r"Font Awesome (?:Free\s)?(\d+.\d+.\d+)")
-
-
-def _remove_prefix(s: str, prefix: str) -> str:
-    if sys.version_info < (3, 9):
-        return s[len(prefix) :] if s.startswith(prefix) else s
-    return s.removeprefix(prefix)
 
 
 class FontAwesome:
@@ -36,15 +23,27 @@ class FontAwesome:
     use_min = True
     use_css = False
     version = "7.3.1"
-    css_sri_map = {'all': 'sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg==', 'regular': 'sha512-qiqIzB1QO9jGOxfzFFbQipiNRu0pLW2NOASTcXCf72M6MFHk4JAsDj/BnTJ0YKQ6xb0N500LJPwPJNf+AVU0HQ==', 'solid': 'sha512-E5l6RuM1LLr8r+BTSEtKE9mqwPrO+HQNKbBacr303FoExXNvjq2dX7/0A3sV6OwusCkVmMRZ5zcSDwCziA+n8Q==', 'brands': 'sha512-m0oLz1v7KqlXtoyxY2LmR11D1iUnjOykxdeLg2FjtwKwPW78NYG5/XETzS+KDekWZqZIRsQNhPwpQuxtOQ4+nw==', 'fontawesome': 'sha512-SMQ1DwSGiIDyNoXdQae7kUBADdtQa8Xsb3LxBxzAXExZNCCH/36yQSpZSYo1c6ckFshd1iMp9eD9+s9+tdhmyg=='}
-    js_sri_map = {'all': 'sha512-2+f4MxT8KwN4tUzw6/hv9kxKiix603S9kmBcix+0y0dBhd6zdaPOV1Thf1DM886pFZG+cAtmshBi8UBpo6m3JA==', 'regular': 'sha512-g7PzJ7veB7jx7omc5/NnRjQaYp+SS6zERAEfpojGY8zyANk0o1i5TIXli0KZKShg2QGizGtAoOIUb559lx44mw==', 'solid': 'sha512-T7EGedkSB4ewtlSHpcmpJm6FQMnxZzLYhAYRPk6n4zF30ap1uJrPuXX98A3SYMwv04/ZVTOfbF89Oa6dIJyljw==', 'brands': 'sha512-+tqlT9MG+P9Cfr3eMSpmGotMMBtM5CYfRVwnrU39EAddEfOyH2yrStiEZ/yU57B35reTdH7CbqxxJibmxXy65Q==', 'fontawesome': 'sha512-WgR61jcssTjrH2a2vWm5JiWaEy1kmFIE5G0ybjKB0UEDzygVCebYW4eP2p96XmJWXA0zk/sNhbCfb09Wx39t4A=='}
-    webfonts_map = {
+    css_sri_map: ClassVar[dict[str, str]] = {
+        "all": "sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg==",
+        "regular": "sha512-qiqIzB1QO9jGOxfzFFbQipiNRu0pLW2NOASTcXCf72M6MFHk4JAsDj/BnTJ0YKQ6xb0N500LJPwPJNf+AVU0HQ==",
+        "solid": "sha512-E5l6RuM1LLr8r+BTSEtKE9mqwPrO+HQNKbBacr303FoExXNvjq2dX7/0A3sV6OwusCkVmMRZ5zcSDwCziA+n8Q==",
+        "brands": "sha512-m0oLz1v7KqlXtoyxY2LmR11D1iUnjOykxdeLg2FjtwKwPW78NYG5/XETzS+KDekWZqZIRsQNhPwpQuxtOQ4+nw==",
+        "fontawesome": "sha512-SMQ1DwSGiIDyNoXdQae7kUBADdtQa8Xsb3LxBxzAXExZNCCH/36yQSpZSYo1c6ckFshd1iMp9eD9+s9+tdhmyg==",
+    }
+    js_sri_map: ClassVar[dict[str, str]] = {
+        "all": "sha512-2+f4MxT8KwN4tUzw6/hv9kxKiix603S9kmBcix+0y0dBhd6zdaPOV1Thf1DM886pFZG+cAtmshBi8UBpo6m3JA==",
+        "regular": "sha512-g7PzJ7veB7jx7omc5/NnRjQaYp+SS6zERAEfpojGY8zyANk0o1i5TIXli0KZKShg2QGizGtAoOIUb559lx44mw==",
+        "solid": "sha512-T7EGedkSB4ewtlSHpcmpJm6FQMnxZzLYhAYRPk6n4zF30ap1uJrPuXX98A3SYMwv04/ZVTOfbF89Oa6dIJyljw==",
+        "brands": "sha512-+tqlT9MG+P9Cfr3eMSpmGotMMBtM5CYfRVwnrU39EAddEfOyH2yrStiEZ/yU57B35reTdH7CbqxxJibmxXy65Q==",
+        "fontawesome": "sha512-WgR61jcssTjrH2a2vWm5JiWaEy1kmFIE5G0ybjKB0UEDzygVCebYW4eP2p96XmJWXA0zk/sNhbCfb09Wx39t4A==",
+    }
+    webfonts_map: ClassVar[dict[str, str]] = {
         "regular": "fa-regular-400",
         "solid": "fa-solid-900",
         "brands": "fa-brands-400",
     }
 
-    def __init__(self, app: Optional[Flask] = None) -> None:
+    def __init__(self, app: Flask | None = None) -> None:
         if app is not None:
             self.init_app(app)
 
@@ -66,31 +65,32 @@ class FontAwesome:
         app.register_blueprint(blueprint)
 
         # register extension instance with the Jinja2 environment (for use in templates)
-        app.jinja_env.globals["font_awesome"] = self
+        app.jinja_env.globals["font_awesome"] = self  # ty: ignore[invalid-assignment]
 
         # set default configuration values for this extension instance
         app.config.setdefault("FONT_AWESOME_SERVE_LOCAL", False)
 
     @staticmethod
     def _get_file(
-        style: str, use_min: bool, ext: str, type: Optional[str] = None
+        style: str, *, use_min: bool, ext: str, type_: str | None = None
     ) -> Path:
         """Get the file path for the given style, extension, and possibly-minified suffix."""
         possibly_min = ".min" if use_min else ""
         return (
             STATIC_FOLDER
-            / (type if type is not None else ext)
+            / (type_ if type_ is not None else ext)
             / f"{style}{possibly_min}.{ext}"
         )
 
     @staticmethod
-    def _get_url(
+    def _get_url(  # noqa: PLR0913
         version: str,
         style: str,
+        *,
         use_min: bool,
         ext: str,
         serve_local: bool,
-        type: Optional[str] = None,
+        type_: str | None = None,
     ) -> str:
         """Get the URL for the given version, style, extension, and possibly-minified suffix."""
         possibly_min = ".min" if use_min else ""
@@ -100,32 +100,35 @@ class FontAwesome:
             )
         return CDN_URL_TEMPLATE.format(
             version=version,
-            type=type if type is not None else ext,
+            type=type_ if type_ is not None else ext,
             style=style,
             possibly_min=possibly_min,
             ext=ext,
         )
 
     @staticmethod
-    def _get_version(file: Path) -> Optional[str]:
+    def _get_version(file: Path) -> str | None:
         """Get the version from the given file."""
         match = VERSION_PATTERN.search(file.read_text())
         return match.group(1) if match is not None else None
 
     @classmethod
-    def _request_file(
+    def _request_file(  # noqa: PLR0913
         cls,
         version: str,
         style: str,
+        *,
         use_min: bool,
         ext: str,
         file: Path,
-        type: Optional[str] = None,
+        type_: str | None = None,
     ) -> None:
         """Request the file for serving locally."""
         file.parent.mkdir(parents=True, exist_ok=True)
-        with urllib.request.urlopen(
-            cls._get_url(version, style, use_min, ext, False, type)
+        with urllib.request.urlopen(  # noqa: S310
+            cls._get_url(
+                version, style, use_min=use_min, ext=ext, serve_local=False, type_=type_
+            )
         ) as response:
             file.write_bytes(response.read())
 
@@ -138,17 +141,19 @@ class FontAwesome:
         """Request the webfont files (ttf and woff2) for serving locally."""
         _type = "webfonts"
         for ext in ("ttf", "woff2"):
-            file = cls._get_file(webfont_style, False, ext, _type)
-            cls._request_file(version, webfont_style, False, ext, file, _type)
+            file = cls._get_file(webfont_style, use_min=False, ext=ext, type_=_type)
+            cls._request_file(
+                version, webfont_style, use_min=False, ext=ext, file=file, type_=_type
+            )
 
     @classmethod
     def _possibly_request_file(
-        cls, version: str, style: str, use_min: bool, ext: str
+        cls, version: str, style: str, ext: str, *, use_min: bool
     ) -> None:
         """Possibly request the file for serving locally."""
-        file = cls._get_file(style, use_min, ext)
+        file = cls._get_file(style, use_min=use_min, ext=ext)
         if not file.exists() or cls._get_version(file) != version:
-            cls._request_file(version, style, use_min, ext, file)
+            cls._request_file(version, style, use_min=use_min, ext=ext, file=file)
             if ext == "css":  # also request webfonts
                 if style == "all":
                     for _style in cls.style_choices[1:]:
@@ -158,8 +163,9 @@ class FontAwesome:
                     webfont_style = cls.webfonts_map[style]
                     cls._request_webfont_files(version, webfont_style)
 
-    def load(
+    def load(  # noqa: PLR0913
         self,
+        *,
         version: str = version,
         style: str = style,
         css_sri: str = css_sri_map[style],
@@ -196,11 +202,24 @@ class FontAwesome:
             flask.Markup: The HTML markup for the WebFonts + CSS / SVG + JS resource(s).
         """
         if use_css:
-            return self.load_css(style, version, css_sri, core_css_sri, use_min)
-        return self.load_js(style, version, js_sri, core_js_sri, use_min)
+            return self.load_css(
+                version=version,
+                style=style,
+                sri=css_sri,
+                core_sri=core_css_sri,
+                use_min=use_min,
+            )
+        return self.load_js(
+            version=version,
+            style=style,
+            sri=js_sri,
+            core_sri=core_js_sri,
+            use_min=use_min,
+        )
 
     def load_css(
         self,
+        *,
         version: str = version,
         style: str = style,
         sri: str = css_sri_map[style],
@@ -227,32 +246,42 @@ class FontAwesome:
             flask.Markup: The HTML markup for the WebFonts + CSS resources.
         """
         if style not in self.style_choices:
-            raise ValueError(f"`style` must be one of {', '.join(self.style_choices)}")
+            msg = f"`style` must be one of {', '.join(self.style_choices)}"
+            raise ValueError(msg)
 
         serve_local = current_app.config["FONT_AWESOME_SERVE_LOCAL"]
         ext = "css"
 
-        url = self._get_url(version, style, use_min, ext, serve_local)
+        url = self._get_url(
+            version, style, use_min=use_min, ext=ext, serve_local=serve_local
+        )
         if serve_local:
-            self._possibly_request_file(version, style, use_min, ext)
+            self._possibly_request_file(version, style, ext, use_min=use_min)
             css = f'<link rel="stylesheet" href="{url}" />'
         else:
             css = f'<link rel="stylesheet" href="{url}" integrity="{sri}" crossorigin="anonymous" />'
 
         if style != "all":
             core_url = self._get_url(
-                version, self.core_style, use_min, ext, serve_local
+                version,
+                self.core_style,
+                use_min=use_min,
+                ext=ext,
+                serve_local=serve_local,
             )
             if serve_local:
-                self._possibly_request_file(version, self.core_style, use_min, ext)
+                self._possibly_request_file(
+                    version, self.core_style, ext, use_min=use_min
+                )
                 css += f'\n<link rel="stylesheet" href="{core_url}" />'
             else:
                 css += f'\n<link rel="stylesheet" href="{core_url}" integrity="{core_sri}" crossorigin="anonymous" />'
 
-        return Markup(css)
+        return Markup(css)  # noqa: S704
 
     def load_js(
         self,
+        *,
         version: str = version,
         style: str = style,
         sri: str = js_sri_map[style],
@@ -282,44 +311,54 @@ class FontAwesome:
             flask.Markup: The HTML markup for the SVG + JS resource.
         """
         if style not in self.style_choices:
-            raise ValueError(f"`style` must be one of {', '.join(self.style_choices)}")
+            msg = f"`style` must be one of {', '.join(self.style_choices)}"
+            raise ValueError(msg)
 
         serve_local = current_app.config["FONT_AWESOME_SERVE_LOCAL"]
         ext = "js"
 
-        url = self._get_url(version, style, use_min, ext, serve_local)
+        url = self._get_url(
+            version, style, use_min=use_min, ext=ext, serve_local=serve_local
+        )
         if serve_local:
-            self._possibly_request_file(version, style, use_min, ext)
+            self._possibly_request_file(version, style, ext, use_min=use_min)
             js = f'<script defer src="{url}"></script>'
         else:
             js = f'<script defer src="{url}" integrity="{sri}" crossorigin="anonymous"></script>'
 
         if style != "all":
             core_url = self._get_url(
-                version, self.core_style, use_min, ext, serve_local
+                version,
+                self.core_style,
+                use_min=use_min,
+                ext=ext,
+                serve_local=serve_local,
             )
             if serve_local:
-                self._possibly_request_file(version, self.core_style, use_min, ext)
+                self._possibly_request_file(
+                    version, self.core_style, ext, use_min=use_min
+                )
                 js += f'\n<script defer src="{core_url}"></script>'
             else:
                 js += f'\n<script defer src="{core_url}" integrity="{core_sri}" crossorigin="anonymous"></script>'
 
-        return Markup(js)
+        return Markup(js)  # noqa: S704
 
-    def render_icon(  # noqa: C901
+    def render_icon(  # noqa: C901, PLR0913
         self,
         name: str,
+        *,
         inverse: bool = False,
-        size: Optional[str] = None,
+        size: str | None = None,
         fixed_with: bool = False,
-        rotation: Optional[Union[str, int]] = None,
-        animation: Optional[str] = None,
+        rotation: str | int | None = None,
+        animation: str | None = None,
         border: bool = False,
-        pull: Optional[str] = None,
+        pull: str | None = None,
         swap_opacity: bool = False,
         aria_hidden: bool = True,
-        style: Optional[str] = None,
-        _stack_size: Optional[str] = None,
+        style: str | None = None,
+        _stack_size: str | None = None,
     ) -> Markup:
         """Render an icon.
 
@@ -348,23 +387,23 @@ class FontAwesome:
         """
         icon = f'<i class="{name}'
         if _stack_size:
-            icon += f" fa-stack-{_remove_prefix(_stack_size, 'fa-stack-')}"
+            icon += f" fa-stack-{_stack_size.removeprefix('fa-stack-')}"
         if inverse:
             icon += " fa-inverse"
         if size is not None:
-            icon += f" fa-{_remove_prefix(size, 'fa-')}"
+            icon += f" fa-{size.removeprefix('fa-')}"
         if fixed_with:
             icon += " fa-fw"
         if rotation is not None:
             if isinstance(rotation, int):
                 rotation = f"rotate-{rotation}"
-            icon += f" fa-{_remove_prefix(rotation, 'fa-')}"
+            icon += f" fa-{rotation.removeprefix('fa-')}"
         if animation is not None:
-            icon += f" fa-{_remove_prefix(animation, 'fa-')}"
+            icon += f" fa-{animation.removeprefix('fa-')}"
         if border:
             icon += " fa-border"
         if pull is not None:
-            icon += f" fa-pull-{_remove_prefix(pull, 'fa-pull-')}"
+            icon += f" fa-pull-{pull.removeprefix('fa-pull-')}"
         if swap_opacity:
             icon += " fa-swap-opacity"
         icon += '"'
@@ -373,20 +412,21 @@ class FontAwesome:
         if aria_hidden:
             icon += ' aria-hidden="true"'
         icon += "></i>"
-        return Markup(icon)
+        return Markup(icon)  # noqa: S704
 
-    def render_stacked_icon(
+    def render_stacked_icon(  # noqa: PLR0913
         self,
         name_1: str,
         name_2: str,
+        *,
         stack_size_1: str = "2x",
         stack_size_2: str = "1x",
         inverse: bool = False,
-        size: Optional[str] = None,
+        size: str | None = None,
         aria_hidden: bool = True,
-        style: Optional[str] = None,
-        style_1: Optional[str] = None,
-        style_2: Optional[str] = None,
+        style: str | None = None,
+        style_1: str | None = None,
+        style_2: str | None = None,
     ) -> Markup:
         """Render a `stacked <https://fontawesome.com/v6/docs/web/style/stack>`_ icon.
 
@@ -423,14 +463,28 @@ class FontAwesome:
         """
         span = '<span class="fa-stack'
         if size is not None:
-            span += f" fa-{_remove_prefix(size, 'fa-')}"
+            span += f" fa-{size.removeprefix('fa-')}"
         span += '"'
         if style is not None:
             span += f' style="{style}"'
         if aria_hidden:
             span += ' aria-hidden="true"'
         span += ">"
-        span += f"\n    {self.render_icon(name_1, inverse if stack_size_1 == '1x' else False, aria_hidden=False, style=style_1, _stack_size=stack_size_1)}"
-        span += f"\n    {self.render_icon(name_2, inverse if stack_size_2 == '1x' else False, aria_hidden=False, style=style_2, _stack_size=stack_size_2)}"
+        icon_1 = self.render_icon(
+            name_1,
+            inverse=inverse and stack_size_1 == "1x",
+            aria_hidden=False,
+            style=style_1,
+            _stack_size=stack_size_1,
+        )
+        icon_2 = self.render_icon(
+            name_2,
+            inverse=inverse and stack_size_2 == "1x",
+            aria_hidden=False,
+            style=style_2,
+            _stack_size=stack_size_2,
+        )
+        span += f"\n    {icon_1}"
+        span += f"\n    {icon_2}"
         span += "\n</span>"
-        return Markup(span)
+        return Markup(span)  # noqa: S704

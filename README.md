@@ -2,11 +2,13 @@
 
 # Font-Awesome-Flask
 
-[![PyPI](https://img.shields.io/pypi/v/Font-Awesome-Flask)](https://img.shields.io/pypi/v/Font-Awesome-Flask)
-[![Supported Python Versions](https://img.shields.io/pypi/pyversions/Font-Awesome-Flask)](https://pypi.org/project/Font-Awesome-Flask/)
-[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/sgraaf/font-awesome-flask/main.svg)](https://results.pre-commit.ci/latest/github/sgraaf/font-awesome-flask/main)
+[![PyPI](https://img.shields.io/pypi/v/font-awesome-flask)](https://img.shields.io/pypi/v/font-awesome-flask)
+[![Supported Python Versions](https://img.shields.io/pypi/pyversions/font-awesome-flask)](https://pypi.org/project/font-awesome-flask/)
+[![CI](https://github.com/sgraaf/font-awesome-flask/actions/workflows/ci.yml/badge.svg)](https://github.com/sgraaf/font-awesome-flask/actions/workflows/ci.yml)
+[![Test](https://github.com/sgraaf/font-awesome-flask/actions/workflows/test.yml/badge.svg)](https://github.com/sgraaf/font-awesome-flask/actions/workflows/test.yml)
 [![Documentation Status](https://readthedocs.org/projects/font-awesome-flask/badge/?version=latest)](https://font-awesome-flask.readthedocs.io/en/latest/?badge=latest)
-[![PyPI - License](https://img.shields.io/pypi/l/Font-Awesome-Flask)](https://img.shields.io/pypi/l/Font-Awesome-Flask)
+
+<!-- [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/<PROJECT-NUMBER>/badge)](https://www.bestpractices.dev/projects/<PROJECT-NUMBER>) -->
 
 Font-Awesome-Flask is an extension for [Flask](https://flask.palletsprojects.com/en/latest/) that adds support for [Font Awesome](https://fontawesome.com/) to your web application. It adds methods to load Font Awesome's resources (both `Web Fonts + CSS` and `SVG + JS` are supported) and render icons.
 
@@ -16,32 +18,21 @@ Font-Awesome-Flask is an extension for [Flask](https://flask.palletsprojects.com
 
 <!-- start docs-include-installation -->
 
-### From PyPI
+*Font-Awesome-Flask* is available on [PyPI](https://pypi.org/project/font-awesome-flask/). Install with [uv](https://docs.astral.sh/uv/) or your package manager of choice:
 
-Font-Awesome-Flask is available on [PyPI](https://pypi.org/project/Font-Awesome-Flask/). Install with `pip` or your package manager of choice:
-
-```bash
-pip install Font-Awesome-Flask
-```
-
-### From source
-
-If you'd like, you can also install Font-Awesome-Flask from source (with [`flit`](https://flit.readthedocs.io/en/latest/)):
-
-```bash
-git clone https://github.com/sgraaf/font-awesome-flask.git
-cd font-awesome-flask
-python3 -m pip install flit
-flit install
+```shell
+uv add font-awesome-flask
 ```
 
 <!-- end docs-include-installation -->
 
 ## Documentation
 
-Check out the [Font-Awesome-Flask documentation](https://font-awesome-flask.readthedocs.io/en/stable/) for the [User's Guide](https://font-awesome-flask.readthedocs.io/en/stable/usage.html) and [API Reference](https://font-awesome-flask.readthedocs.io/en/stable/api.html).
+Check out the [*Font-Awesome-Flask* documentation](https://font-awesome-flask.readthedocs.io/en/stable/) for the [User's Guide](https://font-awesome-flask.readthedocs.io/en/stable/usage.html) and [API Reference](https://font-awesome-flask.readthedocs.io/en/stable/api.html).
 
-## Example
+## Usage
+
+<!-- start docs-include-usage -->
 
 ### Configuration
 
@@ -52,8 +43,6 @@ Font-Awesome-Flask can be configured via the [Flask configuration API](https://f
 | `FONT_AWESOME_SERVE_LOCAL` | `False` | Whether to serve Font Awesome's resources locally or from the CDN. |
 
 ### Initialization
-
-<!-- start docs-include-initialization -->
 
 Initialize the extension with the Flask application normally...:
 
@@ -80,8 +69,6 @@ def create_app():
     return app
 ```
 
-<!-- end docs-include-initialization -->
-
 ### Loading resources
 
 Font-Awesome-Flask provides three helper methods to load Font Awesome's resources: `font_awesome.load()`, `font_awesome.load_js()` and `font_awesome.load_css()`.
@@ -91,6 +78,7 @@ Font Awesome can be used either via [Web Fonts + CSS or via SVG + JS](https://fo
 Whichever resource(s) you end up using, you can load them by including any of the `load()` methods in the head of your base template:
 
 <!-- prettier-ignore -->
+
 ```html
 <head>
     ...
@@ -118,3 +106,5 @@ Font-Awesome-Flask provides two ways of rendering icons: via the `font_awesome.r
 {{ render_icon('fas fa-house') }}
 {{ render_stacked_icons('fas fa-square', 'fasfa-house') }}
 ```
+
+<!-- end docs-include-usage -->

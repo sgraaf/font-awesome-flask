@@ -1,35 +1,18 @@
 ```{include} ../README.md
-:start-after: <!-- start docs-include-index -->
-:end-before: <!-- end docs-include-index -->
+---
+start-after: <!-- start docs-include-index -->
+end-before: <!-- end docs-include-index -->
+---
 ```
 
-## User's Guide
+## Contents
 
 ```{toctree}
 ---
 maxdepth: 2
 ---
-
 installation
 usage
-```
-
-## API Reference
-
-```{toctree}
----
-maxdepth: 4
----
-
 api
-```
-
-## Changelog
-
-```{toctree}
----
-maxdepth: 2
----
-
 changelog
 ```

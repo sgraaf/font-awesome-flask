@@ -1,41 +1,57 @@
-name: Publish Python Package
+name: "Publish"
 
 on:
+  push:
+    tags:
+      # Publish on any tag starting with the format "YYYY.N.N"
+      - "[0-9][0-9][0-9][0-9].[0-9]+.[0-9]+*"
+  # dispatched on the new tag by the "Upgrade Font Awesome" workflow, because its tag push
+  # (made with GITHUB_TOKEN) does not trigger other workflows
   workflow_dispatch:
-  workflow_run:
-    workflows:
-      - Bump package version and create release
-    types:
-      - completed
-    branches:
-      - main
-  release:
-    types:
-      - published
 
 jobs:
+  # never publish a release that fails linting, type checking or tests
+  ci:
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+
+  test:
+    uses: ./.github/workflows/test.yml
+    permissions:
+      contents: read
+
   publish:
+    needs: [ci, test]
+    # only publish tagged releases, also when dispatched manually
+    if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||
-      github.event_name == 'release'
+    env:
+      # without this, the smoke tests' `uv run` follows `.python-version` (3.11)
+      UV_PYTHON: "3.14"
+    environment:
+      name: pypi
+    permissions:
+      id-token: write
+      contents: read
     steps:
-      - name: Checkout the repo
-        uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
-      - name: Install Flit
-        run: |-
-          python -m pip install flit
-      - name: Install Dependencies
-        run: |-
-          python -m flit install --symlink
-      - name: Publish to PyPI
-        env:
-          FLIT_USERNAME: __token__
-          FLIT_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-        run: |-
-          python -m flit publish
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.2.0
+
+      - name: Install Python 3.14
+        run: uv python install 3.14
+
+      - name: Build
+        run: uv build
+
+      # Check that basic features work and we didn't miss to include crucial files
+      - name: Smoke test (wheel)
+        run: uv run --isolated --no-project --with dist/*.whl --with pytest pytest -c /dev/null tests/smoke_test.py
+      - name: Smoke test (source distribution)
+        run: uv run --isolated --no-project --with dist/*.tar.gz --with pytest pytest -c /dev/null tests/smoke_test.py
+
+      - name: Publish
+        run: uv publish

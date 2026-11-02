@@ -1,52 +1,204 @@
-name: Upgrade Font Awesome library
+name: "Upgrade Font Awesome"
 
 on:
-  workflow_dispatch:
   schedule:
-    - cron: "57 2 * * *"
+    # Every night at 03:00 UTC
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  # needed to push the upgrade commit and tag, and to create the release
+  contents: write
+  # needed to dispatch the "Publish" workflow
+  actions: write
 
 env:
   LIBRARY: font-awesome
-  INPUT_FILE: input-for-cookiecutter.txt
-  STATIC_FILE: js/all.min.js
+  INIT_FILE: src/flask_font_awesome/__init__.py
+  STATIC_FILE: src/flask_font_awesome/static/js/all.min.js
 
 jobs:
-  upgrade-library:
+  upgrade-font-awesome:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out this repo
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v7
         with:
+          # full history and tags, needed to compute the next combined CalVer + Font Awesome release
           fetch-depth: 0
+
       - name: Configure Git for commits
-        run: |-
+        run: |
           git config user.name "Automated"
           git config user.email "actions@users.noreply.github.com"
-      - name: Get the latest library version
-        run: |-
-          VERSION=$(curl -s https://api.cdnjs.com/libraries/$LIBRARY?fields=version | jq -r .version)
-          echo $VERSION >> $INPUT_FILE
-          echo 'VERSION='$VERSION >> $GITHUB_ENV
-      - name: Download the latest static file
-        run: |-
-          curl -s https://cdnjs.cloudflare.com/ajax/libs/$LIBRARY/$VERSION/$STATIC_FILE -o src/flask_font_awesome/static/$STATIC_FILE
-      - name: Get CSS and JS SRI maps
-        run: |-
-          SRI=$(curl -s https://api.cdnjs.com/libraries/$LIBRARY/$VERSION?fields=sri)
-          echo $SRI | jq --compact-output '{"all": .sri."css/all.min.css", "regular": .sri."css/regular.min.css", "solid": .sri."css/solid.min.css", "brands": .sri."css/brands.min.css", "fontawesome": .sri."css/fontawesome.min.css"}' >> $INPUT_FILE
-          echo $SRI | jq --compact-output '{"all": .sri."js/all.min.js", "regular": .sri."js/regular.min.js", "solid": .sri."js/solid.min.js", "brands": .sri."js/brands.min.js", "fontawesome": .sri."js/fontawesome.min.js"}' >> $INPUT_FILE
-      - name: Build source code
+
+      - name: Get the latest Font Awesome version
         run: |
-          cat $INPUT_FILE
-          cat $INPUT_FILE | pipx run cookiecutter --overwrite-if-exists template
-      - name: Run pre-commit hooks
+          LATEST=$(curl -fsSL "https://api.cdnjs.com/libraries/${LIBRARY}?fields=version" | jq -r .version)
+          echo "LATEST_VERSION=${LATEST}" >> "$GITHUB_ENV"
+
+      - name: Get the current Font Awesome version
         run: |
-          pipx run pre-commit run --files src/**/*
-        continue-on-error: true
-      - name: Commit and push if there are any changes
-        run: |-
-          git add src
-          if ! git diff --cached --quiet src; then
-            git commit -m ":arrow_up: Upgrade Font Awesome to version $VERSION"
-            git push
+          CURRENT=$(grep -oP '^    version = "\K[^"]+' "$INIT_FILE")
+          echo "CURRENT_VERSION=${CURRENT}" >> "$GITHUB_ENV"
+
+      - name: Check for a new Font Awesome version
+        run: |
+          if [ "${CURRENT_VERSION}" = "${LATEST_VERSION}" ] ||
+             [ "$(printf '%s\n' "${CURRENT_VERSION}" "${LATEST_VERSION}" | sort -V | tail -n1)" != "${LATEST_VERSION}" ]; then
+            echo "Font Awesome is already up to date (${CURRENT_VERSION})."
+            echo "UPDATE_AVAILABLE=false" >> "$GITHUB_ENV"
+          else
+            echo "New Font Awesome version available: ${CURRENT_VERSION} -> ${LATEST_VERSION}"
+            echo "UPDATE_AVAILABLE=true" >> "$GITHUB_ENV"
           fi
+
+      - name: Download the latest Font Awesome JS bundle
+        if: env.UPDATE_AVAILABLE == 'true'
+        run: |
+          curl -fsSL "https://cdnjs.cloudflare.com/ajax/libs/${LIBRARY}/${LATEST_VERSION}/js/all.min.js" -o "$STATIC_FILE"
+
+      - name: Get CSS and JS SRI hashes
+        if: env.UPDATE_AVAILABLE == 'true'
+        run: |
+          SRI=$(curl -fsSL "https://api.cdnjs.com/libraries/${LIBRARY}/${LATEST_VERSION}?fields=sri" | jq -r .sri)
+          echo "$SRI" | jq '{all: ."css/all.min.css", regular: ."css/regular.min.css", solid: ."css/solid.min.css", brands: ."css/brands.min.css", fontawesome: ."css/fontawesome.min.css"}' > css_sri.json
+          echo "$SRI" | jq '{all: ."js/all.min.js", regular: ."js/regular.min.js", solid: ."js/solid.min.js", brands: ."js/brands.min.js", fontawesome: ."js/fontawesome.min.js"}' > js_sri.json
+
+      - name: Compute the next package version
+        if: env.UPDATE_AVAILABLE == 'true'
+        run: |
+          CURRENT_PKG=$(grep -oP '^version = "\K[^"]+' pyproject.toml)
+          YEAR=$(date -u +%Y)
+          CUR_YEAR=$(echo "${CURRENT_PKG}" | cut -d. -f1)
+          CUR_N=$(echo "${CURRENT_PKG}" | cut -d. -f2)
+          if [ "${CUR_YEAR}" = "${YEAR}" ]; then
+            N=$((CUR_N + 1))
+          else
+            N=1
+          fi
+          # combine CalVer with the Font Awesome version: YYYY.N.FA_MAJOR.FA_MINOR.FA_PATCH
+          NEW_VERSION="${YEAR}.${N}.${LATEST_VERSION}"
+          # bump the release number if the tag already exists (e.g. a re-run on the same day)
+          while git ls-remote --exit-code --tags origin "refs/tags/${NEW_VERSION}" > /dev/null 2>&1; do
+            NEW_VERSION=$(python3 -c 'import sys; parts = sys.argv[1].split("."); parts[1] = str(int(parts[1]) + 1); print(".".join(parts))' "${NEW_VERSION}")
+          done
+          echo "NEW_VERSION=${NEW_VERSION}" >> "$GITHUB_ENV"
+
+      - name: Update version, SRI maps, package version and changelog
+        if: env.UPDATE_AVAILABLE == 'true'
+        run: |
+          python3 - "${LATEST_VERSION}" "${NEW_VERSION}" <<'EOF'
+          import datetime
+          import json
+          import re
+          import sys
+          from pathlib import Path
+
+          fa_version, new_version = sys.argv[1], sys.argv[2]
+          today = datetime.datetime.now(datetime.timezone.utc).date()
+
+          # update the bundled Font Awesome version and the SRI maps
+          init_file = Path("src/flask_font_awesome/__init__.py")
+          text = init_file.read_text()
+          css_sri = json.loads(Path("css_sri.json").read_text())
+          js_sri = json.loads(Path("js_sri.json").read_text())
+
+          def format_map(name: str, mapping: dict) -> str:
+              lines = [f"    {name}: ClassVar[dict[str, str]] = {{"]
+              lines += [f'        "{key}": "{value}",' for key, value in mapping.items()]
+              lines.append("    }")
+              return "\n".join(lines)
+
+          text = re.sub(
+              r'^    version = "[^"]*"$',
+              f'    version = "{fa_version}"',
+              text,
+              count=1,
+              flags=re.MULTILINE,
+          )
+          text = re.sub(
+              r"^    css_sri_map: ClassVar\[dict\[str, str\]\] = \{.*?\n    \}$",
+              lambda _: format_map("css_sri_map", css_sri),
+              text,
+              count=1,
+              flags=re.MULTILINE | re.DOTALL,
+          )
+          text = re.sub(
+              r"^    js_sri_map: ClassVar\[dict\[str, str\]\] = \{.*?\n    \}$",
+              lambda _: format_map("js_sri_map", js_sri),
+              text,
+              count=1,
+              flags=re.MULTILINE | re.DOTALL,
+          )
+          init_file.write_text(text)
+
+          # bump the package version (CalVer + Font Awesome: YYYY.N.FA_MAJOR.FA_MINOR.FA_PATCH)
+          pyproject = Path("pyproject.toml")
+          text = pyproject.read_text()
+          text = re.sub(
+              r'^version = "[^"]*"$',
+              f'version = "{new_version}"',
+              text,
+              count=1,
+              flags=re.MULTILINE,
+          )
+          pyproject.write_text(text)
+
+          # release the [Unreleased] changes, plus the upgrade, as a new version (Keep a Changelog format)
+          changelog = Path("CHANGELOG.md")
+          text = changelog.read_text()
+          unreleased = re.search(
+              r"^## \[Unreleased\]\((\S+)/compare/(\S+)\.\.\.HEAD\)\n(.*?)(?=^## \[)",
+              text,
+              flags=re.MULTILINE | re.DOTALL,
+          )
+          if unreleased is None:
+              sys.exit(
+                  "CHANGELOG.md has no '## [Unreleased](<repo>/compare/<tag>...HEAD)' section followed by a release"
+              )
+          repo, previous, changes = unreleased.groups()
+          changes = changes.strip()
+          bullet = f"- Upgraded Font Awesome to version {fa_version}"
+          if "### Changed\n\n" in changes:
+              changes = changes.replace("### Changed\n\n", f"### Changed\n\n{bullet}\n", 1)
+          else:
+              # keep the Keep a Changelog section order: Added, Changed, Deprecated, Removed, Fixed, Security
+              later = re.search(r"^### (Deprecated|Removed|Fixed|Security)$", changes, flags=re.MULTILINE)
+              at = later.start() if later is not None else len(changes)
+              changes = f"{changes[:at].rstrip()}\n\n### Changed\n\n{bullet}\n\n{changes[at:]}".strip()
+          text = (
+              text[: unreleased.start()]
+              + f"## [Unreleased]({repo}/compare/{new_version}...HEAD)\n\n"
+              + f"## [{new_version}]({repo}/compare/{previous}...{new_version}) - {today.isoformat()}\n\n"
+              + f"{changes}\n\n"
+              + text[unreleased.end() :]
+          )
+          changelog.write_text(text)
+          EOF
+
+      - name: Commit, tag and push the upgrade
+        if: env.UPDATE_AVAILABLE == 'true'
+        run: |
+          git add "${INIT_FILE}" "${STATIC_FILE}" pyproject.toml CHANGELOG.md
+          git commit -m ":arrow_up: Upgrade Font Awesome to version ${LATEST_VERSION}"
+          git tag "${NEW_VERSION}"
+          git push origin HEAD:main --tags
+
+      # pushes made with GITHUB_TOKEN don't trigger workflows, so dispatch "Publish" on the new tag explicitly
+      - name: Trigger the Publish workflow
+        if: env.UPDATE_AVAILABLE == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run publish.yml --ref "${NEW_VERSION}"
+
+      - name: Create a GitHub release
+        if: env.UPDATE_AVAILABLE == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${NEW_VERSION}" \
+            --title "${NEW_VERSION}" \
+            --notes "## Changes
+
+            - Upgraded Font Awesome to version ${LATEST_VERSION}"
