@@ -8,7 +8,9 @@ The **first number** of the version is the year.
 The **second number** is incremented with each release, starting at 1 for each year.
 The **last three numbers** are the version of the bundled Font Awesome library (e.g. `2026.1.7.3.1` bundles Font Awesome 7.3.1).
 
-## [Unreleased](https://github.com/sgraaf/font-awesome-flask/compare/v0.1.5...HEAD)
+## [2026.1.7.3.1](https://github.com/sgraaf/font-awesome-flask/compare/v0.1.5...2026.1.7.3.1) - 2026-11-02
+
+This release upgrades the bundled Font Awesome to version 7.3.1, a new major version, and fixes `import flask_font_awesome` failing in 0.1.5 because of missing data files. It also introduces a new versioning scheme that combines the release year and number with the bundled Font Awesome version. Upgrading may require changes to your code: most function arguments are now keyword-only, Python 3.11 or newer is required, `flask_font_awesome.__version__` has been removed, and the license is now GPL-3.0-only.
 
 ### Added
 
@@ -35,7 +37,7 @@ The **last three numbers** are the version of the bundled Font Awesome library (
 
 ### Removed
 
-- The `data/css_sris.json` and `data/js_sris.json` files, which are still loaded on import (see the fix under [Unreleased])
+- The `data/css_sris.json` and `data/js_sris.json` files, which are still loaded on import (see the fix under [2026.1.7.3.1])
 
 ## [0.1.4](https://github.com/sgraaf/font-awesome-flask/compare/v0.1.3...v0.1.4) - 2023-12-24
 
